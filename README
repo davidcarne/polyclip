@@ -1,0 +1,14 @@
+Description:
+
+Polyclip is a simple library for computing operations on polygons, with 
+an emphasis on those needed for the authors DRCBotV2. That said, contributions
+outside of the original scope are welcome.
+
+Requirements: None [C compiler]
+
+Why another polygon clipper?:
+
+There are lots of great polygon clippers out there, but many of them 
+are extremely heavyweight, limited to fixed-point numbers, or licensed
+in such a way that I'm reluctant to use them. PolyClip is a lightweight
+polygon clipping library written in vanilla C.
