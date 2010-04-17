@@ -335,9 +335,21 @@ bool GH_pointInPoly(struct GH_vertex_ll * poly, struct GH_point * point)
 	int c = 0;
 	struct GH_vertex_ll * a, *b;
 	
+	// initialize to status of last line
+	bool coincide_disable = GH_intersect(VERTEX_POINT(__find_last(poly)), VERTEX_POINT(poly), 
+										 point, &end, &aa, &ab) == INTER_COINCIDE;
+	
 	FOR_VERTEX_PAIR(poly, a, b)
-		if (GH_intersect(VERTEX_POINT(a), VERTEX_POINT(b), point, &end, &aa, &ab))
+		enum intertype_e i = GH_intersect(VERTEX_POINT(a), VERTEX_POINT(b), point, &end, &aa, &ab);
+		
+		// coincide disable prevents multiple consecutive lines that are coincident with
+		// the test line from counting as additional windings
+		// We need to count the first coincident line, since we counted the line
+		// that touched the test line to bring it into co-incidence
+		if (i != INTER_NONE && ( i != INTER_COINCIDE || i == INTER_COINCIDE && !coincide_disable))
 			c++;
+		coincide_disable = i == INTER_COINCIDE;
+	
 	END_FOR_VERTEX_PAIR(poly, a, b);
 	return c & 0x1; // Odd winding # means inside poly, even outside.
 }

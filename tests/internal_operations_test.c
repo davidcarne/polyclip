@@ -2,6 +2,9 @@
 #include "polymath.h"
 #include "polymath_internal.h"
 #include "math.h"
+#include "support.h"
+#include <stdio.h>
+
 void testNoCrossingLine(void)
 {
 	struct GH_point a = {10,10}, b = {20,20}, c = {16,15}, d = {30, 29};
@@ -104,6 +107,71 @@ void testCoincide1(void)
 	LT_ASSERT(bits & C_ONAB);
 }
 
+void testPointInPolygonBug1(void)
+{
+	struct GH_vertex_ll * r1 = createRect(4,3,2,2);
+	struct GH_point p1 = {1.5, 4};
+	LT_ASSERT(!GH_pointInPoly(r1, &p1));
+
+}
+
+
+void testPointInPolygonBug2(void)
+{
+	struct GH_vertex_ll * r = NULL, * p;
+	r = GH_polyPoint(NULL, 3, 2);
+	p = GH_polyPoint(r,    5, 2);
+	p = GH_polyPoint(p,    5, 4);
+	p = GH_polyPoint(p,    4, 4);
+	p = GH_polyPoint(p,    3, 4);
+	
+	struct GH_point p1 = {1.5, 4};
+	LT_ASSERT(!GH_pointInPoly(r, &p1));
+	
+}
+
+void testPointInPolygonBug3(void)
+{
+	struct GH_vertex_ll * r = NULL, * p;
+	r = GH_polyPoint(NULL, 1, 2);
+	p = GH_polyPoint(r,    2, 3);
+	p = GH_polyPoint(p,    3, 2);
+	p = GH_polyPoint(p,    2, 1);
+	
+	struct GH_point p1 = {2, 2};
+	LT_ASSERT(GH_pointInPoly(r, &p1));
+	
+}
+
+void testPointInPolygonBug4(void)
+{
+	struct GH_vertex_ll * r = NULL, * p;
+	r = GH_polyPoint(NULL, 1, 2);
+	p = GH_polyPoint(r,    2, 3);
+	p = GH_polyPoint(p,    3, 2);
+	p = GH_polyPoint(p,    2, 1);
+	
+	
+	struct GH_point p1 = {0, 2};
+	LT_ASSERT(!GH_pointInPoly(r, &p1));
+	
+}
+
+void testPointInPolygonBug5(void)
+{
+	struct GH_vertex_ll * r = NULL, * p;
+	r = GH_polyPoint(NULL, 6, 4);
+	p = GH_polyPoint(r,    8, 4);
+	p = GH_polyPoint(p,    4, 0);
+	p = GH_polyPoint(p,    4, 4);
+	
+	
+	struct GH_point p1 = {3, 4};
+	LT_ASSERT(!GH_pointInPoly(r, &p1));
+	
+}
+
+
 void internal_ops_tests(void)
 {
 	
@@ -115,4 +183,9 @@ void internal_ops_tests(void)
 	_T(testTouch2);
 	_T(testTouch3);
 	_T(testCoincide1);
+	_T(testPointInPolygonBug1);
+	_T(testPointInPolygonBug2);
+	_T(testPointInPolygonBug3);
+	_T(testPointInPolygonBug4);
+	_T(testPointInPolygonBug5);
 }

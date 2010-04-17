@@ -5,11 +5,26 @@
 #include "stdio.h"
 #include "libtest.h"
 
+
+const char * flg_dec(enum flag_type_e e)
+{
+	switch(e)
+	{
+		case FLG_NONE: return "FLG_NONE";
+		case FLG_EN: return "FLG_EN";
+		case FLG_EX: return "FLG_EX";
+		case FLG_EN_EX: return "FLG_EN_EX";
+		case FLG_EX_EN: return "FLG_EX_EN";
+		default: return "BADFLAG!!!!";
+	}
+}
+
+
 void polyDump(struct GH_vertex_ll * p)
 {
 	int c = 0;
 	do {
-		printf("$%04d$ X=%lf Y=%lf I=%d FLG=%d\n", c++, p->c.x, p->c.y, p->intersect, p->flag);
+		printf("$%04d$ X=%lf Y=%lf I=%d FLG=%s\n", c++, p->c.x, p->c.y, p->intersect, flg_dec(p->flag));
 	} while (p = p->next);
 	printf("\n");
 }
