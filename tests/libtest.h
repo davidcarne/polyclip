@@ -12,6 +12,7 @@ void lt_assert(char * file, int line, char * text, bool value);
 void lt_require(char * file, int line, char * text, bool value);
 
 void lt_printresults();
+bool lt_allpass(void);
 
 #define LT_ASSERT(x) lt_assert(__FILE__,__LINE__,#x, x)
 #define LT_REQUIRE(x) lt_require(__FILE__,__LINE__,#x, x)

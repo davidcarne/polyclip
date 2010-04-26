@@ -33,6 +33,10 @@ void lt_append_err(char * file, int line, char * failure)
 	(*i)->file = file;
 	(*i)->line = line;
 	(*i)->assertion_failure = failure;
+
+	if (g_only_name)
+		printf("%20s:%-4d\t\t%s: ASSERTION FAILED: %s\n", file, line, g_test_name, failure);
+
 }
 
 void lt_init(int argc, char ** argv)
@@ -86,4 +90,9 @@ void lt_printresults()
 		i = i->next;
 		free(n);
 	}
+}
+
+bool lt_allpass(void)
+{
+	return !g_err_head;
 }

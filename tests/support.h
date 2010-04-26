@@ -2,7 +2,7 @@
 #define _SUPPORT_H_
 
 #include "polymath.h"
-#define COMPARE_EPSILON 0.0000001
+#define COMPARE_EPSILON 0.000001
 #define _FC(a,b) (fabs((a) - (b)) < COMPARE_EPSILON)
 #define VERTEX_COMPARE_TO(a, xx, yy) (_FC((a)->c.x, (xx)) && _FC((a)->c.y, (yy)))
 #define _I polyIndex

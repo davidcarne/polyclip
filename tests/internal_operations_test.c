@@ -8,7 +8,7 @@
 void testNoCrossingLine(void)
 {
 	struct GH_point a = {10,10}, b = {20,20}, c = {16,15}, d = {30, 29};
-	float alphaP, alphaQ;
+	double alphaP, alphaQ;
 	
 	enum intertype_e inter_type = GH_intersect(&a,&b,&c,&d, &alphaP, &alphaQ);
 	
@@ -19,7 +19,7 @@ void testCloseLines(void)
 {
 	
 	struct GH_point a = {10,10}, b = {20,20}, c = {10.001, 10}, d = {20.001, 20};
-	float alphaP, alphaQ;
+	double alphaP, alphaQ;
 	
 	
 	enum intertype_e inter_type = GH_intersect(&a,&b,&c,&d, &alphaP, &alphaQ);
@@ -30,7 +30,7 @@ void testCloseLines(void)
 void testCoaxialOverlappingLines(void)
 {
 	struct GH_point a = {10,10}, b = {20,20}, c = {5, 5}, d = {15, 15};
-	float alphaP, alphaQ;
+	double alphaP, alphaQ;
 	
 	enum intertype_e inter_type = GH_intersect(&a,&b,&c,&d, &alphaP, &alphaQ);
 	
@@ -40,7 +40,7 @@ void testCoaxialOverlappingLines(void)
 void testIdenticalLines(void)
 {
 	struct GH_point a = {10,10}, b = {20,20}, c = {10, 10}, d = {20, 20};
-	float alphaP, alphaQ;
+	double alphaP, alphaQ;
 	
 	enum intertype_e inter_type = GH_intersect(&a,&b,&c,&d, &alphaP, &alphaQ);
 	
@@ -51,7 +51,7 @@ void testIdenticalLines(void)
 void testTouch1(void)
 {
 	struct GH_point a = {10,10}, b = {20,20}, c = {5, 10}, d = {20, 20};
-	float alphaP, alphaQ;
+	double alphaP, alphaQ;
 	
 	enum intertype_e inter_type = GH_intersect(&a,&b,&c,&d, &alphaP, &alphaQ);
 	
@@ -63,7 +63,7 @@ void testTouch1(void)
 void testTouch2(void)
 {
 	struct GH_point a = {10,10}, b = {20,20}, c = {5, 10}, d = {15, 15};
-	float alphaP, alphaQ;
+	double alphaP, alphaQ;
 	
 	enum intertype_e inter_type = GH_intersect(&a,&b,&c,&d, &alphaP, &alphaQ);
 	
@@ -75,7 +75,7 @@ void testTouch2(void)
 void testTouch3(void)
 {
 	struct GH_point a = {10,10}, b = {20,20}, c = {15, 15}, d = {5, 10};
-	float alphaP, alphaQ;
+	double alphaP, alphaQ;
 	
 	enum intertype_e inter_type = GH_intersect(&a,&b,&c,&d, &alphaP, &alphaQ);
 	
@@ -85,7 +85,7 @@ void testTouch3(void)
 void testTouch4(void)
 {
 	struct GH_point a = {10,10}, b = {20,20}, c = {15, 15}, d = {5, 10};
-	float alphaP, alphaQ;
+	double alphaP, alphaQ;
 	
 	enum intertype_e inter_type = GH_intersect(&a,&b,&c,&d, &alphaP, &alphaQ);
 	
@@ -96,7 +96,7 @@ void testTouch4(void)
 void testCoincide1(void)
 {
 	struct GH_point a = {4,4}, b = {0,4}, c = {1, 4}, d = {5, 4};
-	float alphaP, alphaQ;
+	double alphaP, alphaQ;
 	
 	enum intertype_e inter_type = GH_intersect(&a,&b,&c,&d, &alphaP, &alphaQ);
 	
@@ -171,6 +171,34 @@ void testPointInPolygonBug5(void)
 	
 }
 
+void testPointInPolygonBug6(void)
+{
+	struct GH_vertex_ll * r = NULL, * p;
+	r = GH_polyPoint(NULL, 1, 2);
+	p = GH_polyPoint(r,    3, 2);
+	p = GH_polyPoint(p,    2, 4);
+	
+	
+	struct GH_point p1 = {0, 4};
+	LT_ASSERT(!GH_pointInPoly(r, &p1));
+	
+}
+
+void testPointInPolygonBug7(void)
+{
+	struct GH_vertex_ll * pokey = NULL, * p;
+	pokey = GH_polyPoint(NULL, 0, 0);
+	p = GH_polyPoint(pokey,2, 0);
+	p = GH_polyPoint(p,    2, 2);
+	p = GH_polyPoint(p,    3, 2);
+	p = GH_polyPoint(p,    2, 3);
+	p = GH_polyPoint(p,    0, 3);
+	
+	
+	struct GH_point p1 = {1, 2};
+	LT_ASSERT(GH_pointInPoly(pokey, &p1));
+	
+}
 
 void internal_ops_tests(void)
 {
@@ -188,4 +216,6 @@ void internal_ops_tests(void)
 	_T(testPointInPolygonBug3);
 	_T(testPointInPolygonBug4);
 	_T(testPointInPolygonBug5);
+	_T(testPointInPolygonBug6);
+	_T(testPointInPolygonBug7);
 }

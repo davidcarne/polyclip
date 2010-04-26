@@ -6,7 +6,7 @@
 #include "math.h"
 #include "support.h"
 
-static void test_overlapping_rects_1(void)
+static void p1_test_overlapping_rects_1(void)
 {
 	// Square centered on 2,2
 	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
@@ -63,7 +63,7 @@ static void test_overlapping_rects_1(void)
 }
 
 
-static void test_overlapping_rects_2(void)
+static void p1_test_overlapping_rects_2(void)
 {
 	// Square centered on 2,2
 	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
@@ -119,7 +119,7 @@ static void test_overlapping_rects_2(void)
 	 */
 }
 
-static void test_adjacent_rects_1(void)
+static void p1_test_adjacent_rects_1(void)
 {
 	// Square centered on 2,2
 	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
@@ -155,7 +155,7 @@ static void test_adjacent_rects_1(void)
 	LT_ASSERT (_I(r2,0)->neighbor == _I(r1,3));
 }
 
-static void test_adjacent_rects_2(void)
+static void p1_test_adjacent_rects_2(void)
 {
 	// Square centered on 2,2
 	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
@@ -191,7 +191,7 @@ static void test_adjacent_rects_2(void)
 	LT_ASSERT (_I(r2,3)->neighbor == _I(r1,2));
 }
 
-static void test_overlapborder_rects_1(void)
+static void p1_test_overlapborder_rects_1(void)
 {
 	// Square centered on 2,2
 	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
@@ -229,7 +229,7 @@ static void test_overlapborder_rects_1(void)
 	LT_ASSERT (_I(r2,0)->neighbor == _I(r1,3));
 }
 
-static void test_overlapborder_rects_2(void)
+static void p1_test_overlapborder_rects_2(void)
 {
 	// Square centered on 2,2
 	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
@@ -266,7 +266,7 @@ static void test_overlapborder_rects_2(void)
 	LT_ASSERT (_I(r2,4)->neighbor == _I(r1,2));
 }
 
-static void test_touching_rects_1(void)
+static void p1_test_touching_rects_1(void)
 {
 	// Square centered on 2,2
 	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
@@ -284,7 +284,7 @@ static void test_touching_rects_1(void)
 	LT_ASSERT (_I(r2,0)->neighbor == _I(r1,2));
 }
 
-static void test_touching_rects_2(void)
+static void p1_test_touching_rects_2(void)
 {
 	
 	// Square centered on 2,2
@@ -306,14 +306,14 @@ static void test_touching_rects_2(void)
 
 void phase_1_tests(void)
 {
-	_T(test_overlapping_rects_1);
-	_T(test_overlapping_rects_2);
-	_T(test_adjacent_rects_1);
-	_T(test_adjacent_rects_2);
-	_T(test_touching_rects_1);
-	_T(test_touching_rects_2);
-	_T(test_touching_rects_1);
-	_T(test_overlapborder_rects_1);
-	_T(test_overlapborder_rects_2);
+	_T(p1_test_overlapping_rects_1);
+	_T(p1_test_overlapping_rects_2);
+	_T(p1_test_adjacent_rects_1);
+	_T(p1_test_adjacent_rects_2);
+	_T(p1_test_touching_rects_1);
+	_T(p1_test_touching_rects_2);
+	_T(p1_test_touching_rects_1);
+	_T(p1_test_overlapborder_rects_1);
+	_T(p1_test_overlapborder_rects_2);
 
 }

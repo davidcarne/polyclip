@@ -14,7 +14,7 @@ static bool no_couples(struct GH_vertex_ll * a)
 	} while (a = a->next);
 	return 1;
 }
-static void test_overlapping_rects_1(void)
+static void p2_test_overlapping_rects_1(void)
 {
 	// Square centered on 2,2
 	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
@@ -62,7 +62,7 @@ static void test_overlapping_rects_1(void)
 }
 
 
-static void test_overlapping_rects_2(void)
+static void p2_test_overlapping_rects_2(void)
 {
 	// Square centered on 2,2
 	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
@@ -112,7 +112,7 @@ static void test_overlapping_rects_2(void)
 	LT_ASSERT(no_couples(r2));
 }
 
-static void test_adjacent_rects_1(void)
+static void p2_test_adjacent_rects_1(void)
 {
 	// Square centered on 2,2
 	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
@@ -141,7 +141,7 @@ static void test_adjacent_rects_1(void)
 	LT_ASSERT(no_couples(r2));
 }
 
-static void test_adjacent_rects_2(void)
+static void p2_test_adjacent_rects_2(void)
 {
 	// Square centered on 2,2
 	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
@@ -168,7 +168,7 @@ static void test_adjacent_rects_2(void)
 	LT_ASSERT(no_couples(r2));
 }
 
-static void test_touching_rects_1(void)
+static void p2_test_touching_rects_1(void)
 {
 	// Square centered on 2,2
 	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
@@ -195,7 +195,7 @@ static void test_touching_rects_1(void)
 
 }
 
-static void test_touching_rects_2(void)
+static void p2_test_touching_rects_2(void)
 {
 	
 	// Square centered on 2,2
@@ -223,7 +223,7 @@ static void test_touching_rects_2(void)
 
 }
 
-static void test_overlapborder_rects_1(void)
+static void p2_test_overlapborder_rects_1(void)
 {
 	// Square centered on 2,2
 	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
@@ -253,7 +253,7 @@ static void test_overlapborder_rects_1(void)
 	
 }
 
-static void test_overlapborder_rects_2(void)
+static void p2_test_overlapborder_rects_2(void)
 {
 	// Square centered on 2,2
 	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
@@ -282,7 +282,7 @@ static void test_overlapborder_rects_2(void)
 }
 
 
-static void test_onelarger(void)
+static void p2_test_onelarger(void)
 {
 	// Square centered on 2,2
 	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
@@ -315,7 +315,7 @@ static void test_onelarger(void)
 	LT_ASSERT(no_couples(r2));
 }
 
-static void test_onelarger2(void)
+static void p2_test_onelarger2(void)
 {
 	// Square centered on 2,2
 	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
@@ -348,7 +348,7 @@ static void test_onelarger2(void)
 	LT_ASSERT(no_couples(r2));
 }
 
-static void test_semi1(void)
+static void p2_test_semi1(void)
 {
 	// Square centered on 2,2
 	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
@@ -395,7 +395,7 @@ static void test_semi1(void)
 	LT_ASSERT(_I(r2, 5)->couple == _I(r2, 4));
 }
 
-static void test_semi2(void)
+static void p2_test_semi2(void)
 {
 	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
 	struct GH_vertex_ll * r2 = createRectCW(4,3,2,2);
@@ -444,16 +444,16 @@ static void test_semi2(void)
 
 void phase_2_tests(void)
 {
-	_T(test_overlapping_rects_1);
-	_T(test_overlapping_rects_2);
-	_T(test_adjacent_rects_1);
-	_T(test_adjacent_rects_2);
-	_T(test_touching_rects_1);
-	_T(test_touching_rects_2);
-	_T(test_overlapborder_rects_1);
-	_T(test_overlapborder_rects_2);
-	_T(test_onelarger);
-	_T(test_onelarger2);
-	_T(test_semi1);
-	_T(test_semi2);
+	_T(p2_test_overlapping_rects_1);
+	_T(p2_test_overlapping_rects_2);
+	_T(p2_test_adjacent_rects_1);
+	_T(p2_test_adjacent_rects_2);
+	_T(p2_test_touching_rects_1);
+	_T(p2_test_touching_rects_2);
+	_T(p2_test_overlapborder_rects_1);
+	_T(p2_test_overlapborder_rects_2);
+	_T(p2_test_onelarger);
+	_T(p2_test_onelarger2);
+	_T(p2_test_semi1);
+	_T(p2_test_semi2);
 }

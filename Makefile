@@ -6,7 +6,8 @@ OBJS=$(patsubst %.c,build/%.o, $(SRCS) )
 TEST_SRCS=tests/main.c  tests/libtest.c \
 			tests/internal_operations_test.c \
 			tests/basic_polygon_tests.c tests/support.c \
-			tests/phase_2_tests.c tests/phase_3_tests.c
+			tests/phase_2_tests.c tests/phase_3_tests.c \
+			tests/global_tests.c
 			
 TEST_OBJS=$(patsubst %.c,build/%_t.o, $(TEST_SRCS) )
 

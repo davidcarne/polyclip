@@ -34,12 +34,11 @@
 #include "polymath.h"
 #include "polymath_internal.h"
 
-#define COMPARE_EPSILON 0.0000001
+#define COMPARE_EPSILON 0.000000001
 #define _FC(a,b) (fabs((a) - (b)) < COMPARE_EPSILON)
 #define POINT_COMPARE(a, b) (_FC((a)->x, (b)->x) && _FC((a)->y, (b)->y))
 #define RECT_BETWEEN(a, c,d)	((a->x > c->x && a->x < d->x || a->x > d->x && a->x < c->x) || \
 (a->y > c->y && a->y < d->y || a->y > d->x && a->y < c->y))
-
 
 struct GH_vertex_ll * __find_non_intersect(struct GH_vertex_ll * v)
 {
@@ -120,7 +119,7 @@ struct GH_vertex_ll * alloc_vertex()
 	if (!v) return NULL;
 	
 	v->c.x = v->c.y = INFINITY;
-	v->next = v->prev = v->nextPoly = v->neighbor = NULL;
+	v->next = v->prev = v->neighbor = NULL;
 	v->intersect = false;
 	v->flag = FLG_NONE;
 	v->cross_change = false;
@@ -130,7 +129,7 @@ struct GH_vertex_ll * alloc_vertex()
 	return v;
 }
 
-struct GH_vertex_ll * GH_createIVertex(struct GH_point * A, struct GH_point * B, float a)
+struct GH_vertex_ll * GH_createIVertex(struct GH_point * A, struct GH_point * B, double a)
 {
 	assert(A != NULL);
 	assert(B != NULL);
@@ -218,11 +217,11 @@ void GH_sortedInsert(struct GH_vertex_ll * P1, struct GH_vertex_ll * P2, struct 
 
 }
 
-float GH_calc_WEC(struct GH_point * A, struct GH_point * B, struct GH_point * C, struct GH_point * D)
+double GH_calc_WEC(struct GH_point * A, struct GH_point * B, struct GH_point * C, struct GH_point * D)
 {
 	assert(A != NULL); assert(B != NULL); assert(C != NULL); assert(D != NULL);
 	// (A - B) dot perpendicular(C - D)
-	return (float)(A->y - B->y) * (C->x - D->x) - (A->x - B->x) * (C->y - D->y);
+	return (double)(A->y - B->y) * (C->x - D->x) - (A->x - B->x) * (C->y - D->y);
 }
 
 int outcode(struct GH_point * p, double L, double R, double B, double T)
@@ -239,21 +238,15 @@ int outcode(struct GH_point * p, double L, double R, double B, double T)
 		outcode |= OC_B;
 	if (p->y > T)
 		outcode |= OC_T;
-
+	//printf("Outcode %20.16f, %50.40, %20.16lf [%d] - %x\n", B, p->y, B-p->y, p->y < B, outcode);
 	return outcode;
 }
 
-bool GH_pointCompare(struct GH_point * a, struct GH_point * b)
-{
-	assert(a); assert(b);
-	
-	return _FC(a->x, b->x) && _FC(a->y, b->y);
-}
 
 // Intersects P1->P2 with Q1->Q2
 // 	P1 Open, P2 Closed [aka, P1 on Q1->Q2 = NO INTERSECT]
 enum intertype_e GH_intersect(struct GH_point * P1, struct GH_point * P2, struct GH_point * Q1, struct GH_point * Q2,
-	float * alphaP, float * alphaQ)
+	double * alphaP, double * alphaQ)
 {
 	assert(P1 != NULL); assert(P2 != NULL); assert(Q1 != NULL); assert(Q2 != NULL);
 	assert(alphaP != NULL); assert(alphaQ != NULL);
@@ -279,13 +272,13 @@ enum intertype_e GH_intersect(struct GH_point * P1, struct GH_point * P2, struct
 		return INTER_NONE;
 
 	/* Now do the window-edge-coordinate method of finding intersections */
-	float WEC_P1 = GH_calc_WEC(P1, Q1, Q2, Q1);
-	float WEC_P2 = GH_calc_WEC(P2, Q1, Q2, Q1);
+	double WEC_P1 = GH_calc_WEC(P1, Q1, Q2, Q1);
+	double WEC_P2 = GH_calc_WEC(P2, Q1, Q2, Q1);
 
 	if (WEC_P1 * WEC_P2 <= 0)
 	{
-		float WEC_Q1 = GH_calc_WEC(Q1, P1, P2, P1);
-		float WEC_Q2 = GH_calc_WEC(Q2, P1, P2, P1);
+		double WEC_Q1 = GH_calc_WEC(Q1, P1, P2, P1);
+		double WEC_Q2 = GH_calc_WEC(Q2, P1, P2, P1);
 		if (WEC_Q1 * WEC_Q2 <= 0)
 		{
 			*alphaP = WEC_P1 / (WEC_P1 - WEC_P2);
@@ -298,16 +291,17 @@ enum intertype_e GH_intersect(struct GH_point * P1, struct GH_point * P2, struct
 				return INTER_COINCIDE;
 			}
 
-			if (_FC(*alphaP, 0.0))
+			// TODO: Revisit assumption that these will always come out "on-the-button"
+			if (*alphaP == 0.0)
 				return INTER_NONE;
 
-			if (_FC(*alphaQ, 0.0))
+			if (*alphaQ == 0.0)
 				return INTER_NONE;
 
-			if (_FC(*alphaP, 1.0))
+			if (*alphaP == 1.0)
 				return INTER_TOUCH;
 			
-			if (_FC(*alphaQ, 1.0))
+			if (*alphaQ == 1.0)
 				return INTER_TOUCH;
 
 
@@ -326,35 +320,68 @@ bool GH_pointInPoly(struct GH_vertex_ll * poly, struct GH_point * point)
 	
 	// TODO: optimize + fix
 	struct GH_point end;
-	float aa, ab;
+	double aa, ab;
 
 	// TODO: end.x should be > max_x
-	end.x = point->x+1000000;
+	end.x = point->x+1000000.0;
 	end.y = point->y;
 
 	int c = 0;
 	struct GH_vertex_ll * a, *b;
 	
-	// initialize to status of last line
-	bool coincide_disable = GH_intersect(VERTEX_POINT(__find_last(poly)), VERTEX_POINT(poly), 
-										 point, &end, &aa, &ab) == INTER_COINCIDE;
+	bool check_slope = false;
+	float old_slope = 0;
 	
+	bool first_slope_set = false;
+	float first_slope;
+	//printf("Checking point %f %f\n", point->x, point->y);
+
 	FOR_VERTEX_PAIR(poly, a, b)
 		enum intertype_e i = GH_intersect(VERTEX_POINT(a), VERTEX_POINT(b), point, &end, &aa, &ab);
-		
-		// coincide disable prevents multiple consecutive lines that are coincident with
-		// the test line from counting as additional windings
-		// We need to count the first coincident line, since we counted the line
-		// that touched the test line to bring it into co-incidence
-		if (i != INTER_NONE && ( i != INTER_COINCIDE || i == INTER_COINCIDE && !coincide_disable))
+	
+		assert(!check_slope || i == INTER_NONE || i == INTER_COINCIDE);
+	
+		if (i != INTER_NONE && i != INTER_COINCIDE)
 			c++;
-		coincide_disable = i == INTER_COINCIDE;
+		
+		//printf("Intersection of %f %f -> %f %f : %d\n", a->c.x, a->c.y, b->c.x, b->c.y, i);
+		if (i == INTER_NONE && !first_slope_set)
+		{
+			first_slope_set = true;
+			first_slope = b->c.y - a->c.y;
+		}
+		
+		if (i == INTER_NONE && check_slope)
+		{
+			check_slope = false;
+			float new_slope = b->c.y - a->c.y;
+			assert(new_slope != 0);
+			assert(old_slope != 0);
+			
+			// different sides of the horiz test line, so another winding
+			if (new_slope * old_slope < 0)
+				c++;
+				
+		}
+		else if (i == INTER_TOUCH && !check_slope)
+		{
+			check_slope = true;
+			old_slope = b->c.y - a->c.y;
+		}
 	
 	END_FOR_VERTEX_PAIR(poly, a, b);
+
+	if (check_slope)
+	{
+		assert(first_slope_set);
+		if (first_slope * old_slope < 0)
+			c++;
+	}
+	
 	return c & 0x1; // Odd winding # means inside poly, even outside.
 }
 
-float GH_calcAlpha(struct GH_point * point, struct GH_point * start, struct GH_point * finish)
+double GH_calcAlpha(struct GH_point * point, struct GH_point * start, struct GH_point * finish)
 {
 	assert(point);
 	assert(start);
@@ -364,7 +391,7 @@ float GH_calcAlpha(struct GH_point * point, struct GH_point * start, struct GH_p
 	double dy = finish->y - start->y;
 	assert(!(_FC(dx, 0) && _FC(dy, 0)));
 
-	float a = 0;
+	double a = 0;
 	if (!_FC(dx, 0))
 	{
 		a = (point->x - start->x) / dx;
@@ -455,7 +482,7 @@ bool GH_phase_one(struct GH_vertex_ll * subject, struct GH_vertex_ll * clip)
 	// Iterate across both polygons
 	FOR_VERTEX_NI_PAIR(subject, s0, s1)
 		FOR_VERTEX_NI_PAIR(clip, c0, c1)
-			float a, b;
+			double a, b;
 			enum intertype_e inter_type = GH_intersect(
 					VERTEX_POINT(s0), VERTEX_POINT(s1), 
 					VERTEX_POINT(c0), VERTEX_POINT(c1),
@@ -597,7 +624,6 @@ enum edge_status_t GHKK_edgeStatus(struct GH_vertex_ll * a, struct GH_vertex_ll 
 
 	struct GH_point mid = GH_midPoint(VERTEX_POINT(a),VERTEX_POINT(b));
 	return GH_pointInPoly(other, &mid) ? edge_in : edge_out;
-	
 }
 
 enum flag_type_e GHKK_calcVertexFlag(enum edge_status_t gamma_p, enum edge_status_t gamma_n)
@@ -701,7 +727,9 @@ void GHKK_phase_two_secondpoly(struct GH_vertex_ll * p, struct GH_vertex_ll * ot
 
 	enum flag_type_e Ciflag_inv = GHKK_invertFlag(Ci->flag);
 #ifdef PHASE2_VERBOSE
-	printf("gamma_p = %x, gamma_n = %x, Ci->flag = %x, CiInv = %x, Ci->neighbor->flag = %x\n", gamma_p, gamma_n, Ci->flag, Ciflag_inv, Ci->neighbor->flag);
+	printf("(%4.2f %4.2f) -> (%4.2f %4.2f) -> (%4.2f %4.2f): gamma_p = %x, gamma_n = %x, Ci->flag = %x, CiInv = %x, Ci->neighbor->flag = %x\n", 
+		Cip->c.x, Cip->c.y, Ci->c.x, Ci->c.y, Cin->c.x, Cin->c.y, 
+		gamma_p, gamma_n, Ci->flag, Ciflag_inv, Ci->neighbor->flag);
 #endif
 	assert(Ci->flag == Ci->neighbor->flag || Ciflag_inv == Ci->neighbor->flag);
 
@@ -772,12 +800,110 @@ void GH_phase_two(struct GH_vertex_ll * p1, struct GH_vertex_ll * p2, enum GH_op
 	GHKK_phase_two_buildcouples(p2);
 }
 
+void GHKK_delete_flag(struct GH_vertex_ll * v, enum flag_type_e flag)
+{
+	assert(v);
+	assert(v->intersect);
+	assert(v->flag != FLG_NONE);
+	assert(flag != FLG_NONE);
+	assert(v->neighbor);
+	assert(!v->couple || v->couple->flag == v->flag);
+	
+	enum flag_type_e nf = FLG_NONE;
+	
+	if (v->flag == flag)
+	{
+		v->flag = FLG_NONE;
+		v->intersect = false;
+		
+		if (v->couple)
+		{
+			v->couple->flag = FLG_NONE;
+			v->couple->intersect = false;
+		}
+	}
+	else if (v->flag == FLG_EN_EX && flag == FLG_EN)
+	{
+		assert (!v->couple);
+		v->flag = FLG_EX;
+		
+	} else if (v->flag == FLG_EX_EN && flag == FLG_EX)
+	{
+		assert (!v->couple);
+		v->flag = FLG_EN;
+	} else {
+		assert(false);
+	}
+
+}
+
+enum flag_type_e GH_choose_flag(enum flag_type_e e)
+{
+	switch (e)
+	{
+		case FLG_NONE:
+			return FLG_NONE;
+		case FLG_EN:
+			return FLG_EN;
+		case FLG_EX:
+			return FLG_EX;
+		case FLG_EN_EX:
+			return FLG_EN;
+		case FLG_EX_EN:
+			return FLG_EX;
+	}
+}
+
+
+
+bool GH_startdir_union(enum flag_type_e flag)
+{
+	
+	// Choose starting direction based on flag.
+	switch (flag)
+	{
+		case FLG_EX:
+			return false;
+			break;
+		case FLG_EN:
+			return true;
+			break;
+		case FLG_EN_EX:
+			return true;
+			break;
+		case FLG_EX_EN:
+			assert(false); // TODO: sane value for me
+			break;
+	}
+}
+
+bool GH_startdir_intersect(enum flag_type_e flag)
+{
+	
+	// Choose starting direction based on flag.
+	switch (flag)
+	{
+		case FLG_EX:
+			return true;
+			break;
+		case FLG_EN:
+			return false;
+			break;
+		case FLG_EN_EX:
+			return true;
+			break;
+		case FLG_EX_EN:
+			assert(false); // TODO: sane value for me
+			break;
+	}
+}
+
 void GH_state_transition_union(bool direction, struct GH_vertex_ll * v, struct GH_vertex_ll ** outvert, bool * outdir)
 {
 	assert(v);
 	assert(outvert);
 	
-	// If this is not an intersection vertex, simply emit it.
+	// If this is not an intersection vertex, simply continue
 	if (!v->intersect)
 	{
 		*outvert = direction ? v->next : v->prev;
@@ -785,64 +911,124 @@ void GH_state_transition_union(bool direction, struct GH_vertex_ll * v, struct G
 		return;
 	}
 	
+	enum flag_type_e chosen_flag = GH_choose_flag(v->flag);
+	
 	// Otherwise, we need to transition through the intersection
-	switch (v->flag)
+	switch (chosen_flag)
 	{
-		case FLG_NONE:
-			*outvert = direction ? v->next : v->prev;
-			*outdir = direction;
-			return;
 		case FLG_EN:			
-			if (v->neighbor->flag == FLG_EX)
-			{
-				v->flag = FLG_NONE;
-				v->neighbor->flag = FLG_NONE;
-				v->intersect = false;
-				v->neighbor->intersect = false;
-				*outvert = direction ? v->neighbor->next : v->neighbor->prev;
-				*outdir = direction;
-			} else if (v->neighbor->flag == FLG_EN)
-			{
-				v->flag = FLG_NONE;
-				v->neighbor->flag = FLG_NONE;
-				v->intersect = false;
-				v->neighbor->intersect = false;
-				*outvert = !direction ? v->neighbor->next : v->neighbor->prev;
-				*outdir = !direction;
-			} else {
-				assert(false);
-			}
-			return;
+			GHKK_delete_flag(v, FLG_EN);
+			break;
 			
 		case FLG_EX:
-			
-			if (v->neighbor->flag == FLG_EX)
-			{
-				v->flag = FLG_NONE;
-				v->neighbor->flag = FLG_NONE;
-				v->intersect = false;
-				v->neighbor->intersect = false;
-				*outvert = !direction ? v->neighbor->next : v->neighbor->prev;
-				*outdir = !direction;
-			} else if (v->neighbor->flag == FLG_EN)
-			{
-				v->flag = FLG_NONE;
-				v->neighbor->flag = FLG_NONE;
-				*outvert = direction ? v->neighbor->next : v->neighbor->prev;
-				*outdir = direction;
-				v->intersect = false;
-				v->neighbor->intersect = false;
-			} else {
-				assert(false);
-			}
-			return;
+			GHKK_delete_flag(v, FLG_EX);
+			direction = !direction;
+			break;
 			
 		default:
 			assert(false); // Flag we can't handle yet encountered
 	}
+	
+bounce_back:
+	
+	// Move across to the neighbor, and then continue on there
+	v = v->neighbor;
+	
+	
+	switch (v->flag)
+	{
+		case FLG_NONE:
+			assert(false);
+		
+		case FLG_EN:
+			GHKK_delete_flag(v, FLG_EN);
+			direction = !direction;
+			break;
+		case FLG_EX:
+			GHKK_delete_flag(v, FLG_EX);
+			break;
+		
+		case FLG_EX_EN:
+			GHKK_delete_flag(v, FLG_EX_EN);
+			goto bounce_back;
+			break;
+			
+		default:
+			assert(false); // Flag we can't handle yet encountered
+	}
+	
+	*outvert = direction ? v->next : v->prev;
+	*outdir = direction;
+
 }
 
-// Prepare for phase 3 by closing the ring on the polygon
+void GH_state_transition_intersect(bool direction, struct GH_vertex_ll * v, struct GH_vertex_ll ** outvert, bool * outdir)
+{
+	assert(v);
+	assert(outvert);
+	
+	// If this is not an intersection vertex, simply continue
+	if (!v->intersect)
+	{
+		*outvert = direction ? v->next : v->prev;
+		*outdir = direction;
+		return;
+	}
+	
+	enum flag_type_e chosen_flag = GH_choose_flag(v->flag);
+	
+	// Otherwise, we need to transition through the intersection
+	switch (chosen_flag)
+	{
+		case FLG_EN:			
+			GHKK_delete_flag(v, FLG_EN);
+			break;
+			
+		case FLG_EX:
+			GHKK_delete_flag(v, FLG_EX);
+			direction = !direction;
+			break;
+			
+		default:
+			assert(false); // Flag we can't handle yet encountered
+	}
+	
+bounce_back:
+	
+	// Move across to the neighbor, and then continue on there
+	v = v->neighbor;
+	
+	switch (v->flag)
+	{
+		case FLG_NONE:
+			assert(false);
+			
+		case FLG_EN:
+			GHKK_delete_flag(v, FLG_EN);
+			direction = !direction;
+			break;
+		case FLG_EX:
+			GHKK_delete_flag(v, FLG_EX);
+			break;
+			
+		case FLG_EN_EX:
+			GHKK_delete_flag(v, FLG_EN_EX);
+			goto bounce_back;
+			
+		case FLG_EX_EN:
+			GHKK_delete_flag(v, FLG_EX_EN);
+			break;
+			
+		default:
+			assert(false); // Flag we can't handle yet encountered
+	}
+	
+	*outvert = direction ? v->next : v->prev;
+	*outdir = direction;
+	
+}
+
+// Prepare for phase 3 by closing the polygon rings
 void GHKK_phase_3_prep(struct GH_vertex_ll * p1, struct GH_vertex_ll * p2)
 {
 	assert(p1); assert(p2);
@@ -858,16 +1044,28 @@ void GHKK_phase_3_prep(struct GH_vertex_ll * p1, struct GH_vertex_ll * p2)
 	p2->prev = l;
 }
 
-bool GHKK_phase_3_fp(struct GH_vertex_ll * p1, struct GH_vertex_ll * p2, struct GH_vertex_ll ** outpoly)
+bool GHKK_phase_3_fp(struct GH_vertex_ll * p1, struct GH_vertex_ll * p2, enum GH_op_t op, struct GH_vertex_ll ** outpoly)
 {
 	struct GH_vertex_ll * l;
 	assert(p1); assert(p2); assert(outpoly);
 	
 	bool direction = 1;
 	l = __find_meets_p3_criteria(p1);
-	
+
 	if (!l)
 		return false;
+	
+	switch (op)
+	{
+		case GH_op_union:
+			direction = GH_startdir_union(l->flag);
+			break;
+		case GH_op_intersect:
+			direction = GH_startdir_intersect(l->flag);
+			break;
+		default:
+			assert(false);
+	}
 	
 	struct GH_vertex_ll * v = l;
 	
@@ -881,21 +1079,26 @@ bool GHKK_phase_3_fp(struct GH_vertex_ll * p1, struct GH_vertex_ll * p2, struct 
 
 		bool newdir;
 		struct GH_vertex_ll * newvert;
-		GH_state_transition_union(direction,v, &newvert, &newdir);
+		switch (op)
+		{
+			case GH_op_union:
+				GH_state_transition_union(direction,v, &newvert, &newdir);
+				break;
+			case GH_op_intersect:
+				GH_state_transition_intersect(direction,v, &newvert, &newdir);
+				break;
+		}
+		
 		v = newvert;
 		direction = newdir;
 		
-	} while (v != l);
+	} while (v != l && v != l->neighbor);
 	
 	*outpoly = newpoly;
 	return true;
 }
 
-/* Writes a new polygon at the current poly ptr + moves the pointer to the new location */
 
-#define GH_NEWPOLYGON() { current_poly_start = output_polygon_pos; \
-	if (*output_polygon_pos) \
-	output_vertex_pos = output_polygon_pos = &((*output_polygon_pos)->nextPoly);}
 
 /* allocate a new vertex, store its location where the vertex_output_ptr points to + advance the
  * vertex output ptr to the ->next field */ 
@@ -952,33 +1155,47 @@ int GH_lineCoincideBits(struct GH_point * a, struct GH_point * b, struct GH_poin
  *
  *  p1 / p2 will be destroyed!
  */
-struct GH_vertex_ll * GH_polygon_boolean(struct GH_vertex_ll * p1, struct GH_vertex_ll * p2, enum GH_op_t op)
+struct GH_polygon_ll * GH_polygon_boolean(struct GH_vertex_ll * p1, struct GH_vertex_ll * p2, enum GH_op_t op)
 {
 	if (!GH_phase_one(p1, p2))
 		return NULL;
 
-	//GH_phase_two(p1, p2, op);
-	//return GH_phase_three(p1, p2);
-	return NULL;
+	GH_phase_two(p1, p2, op);
+	GHKK_phase_3_prep(p1, p2);
+	
+	struct GH_polygon_ll * head = NULL;
+	struct GH_polygon_ll  ** cur = &head;
+	
+	struct GH_vertex_ll * newverticies;
+	while (GHKK_phase_3_fp(p1, p2, op, &newverticies))
+	{
+		*cur = (struct GH_polygon_ll*)malloc(sizeof(struct GH_polygon_ll));
+		(*cur)->next = NULL;
+		(*cur)->firstv = newverticies;
+		cur = &(*cur)->next;
+	}
+	
+	return head;
 }
 
 
 void GH_free_polygons(struct GH_vertex_ll * polys)
 {
 	struct GH_vertex_ll * cur_vertex;
-	while (polys)
-	{
-		struct GH_vertex_ll * nextpoly = polys->nextPoly;
-		cur_vertex = polys;
+	
+	// If the loop has been closed, then we need to break it
+	if (polys->prev)
+		polys->prev->next = NULL;
+	
+	cur_vertex = polys;
 
-		while (cur_vertex)
-		{
-			struct GH_vertex_ll * tofree = cur_vertex;
-			cur_vertex = cur_vertex->next;
-			free(cur_vertex);
-		}
-		polys = nextpoly;
+	while (cur_vertex)
+	{
+		struct GH_vertex_ll * tofree = cur_vertex;
+		cur_vertex = cur_vertex->next;
+		free(cur_vertex);
 	}
+	
 }
 
 /* Polygon accessor functions */

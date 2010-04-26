@@ -49,12 +49,11 @@ struct GH_vertex_ll {
 	// Next + prev have special meaning when its an intersection queued
 	//  next is next in insertion list, prev is the line segment its on
 	struct GH_vertex_ll * next, * prev;
-	struct GH_vertex_ll * nextPoly;
 
 	bool	intersect;
 	struct GH_vertex_ll * neighbor;
 
-	float	alpha;
+	double	alpha;
 	enum flag_type_e flag;
 	struct GH_vertex_ll * couple;
 	bool	cross_change;
@@ -141,26 +140,28 @@ struct GH_vertex_ll * __find_last(struct GH_vertex_ll * v);
 struct GH_vertex_ll * __find_intersect_notdone(struct GH_vertex_ll * v);
 
 struct GH_vertex_ll * alloc_GH_vertex_ll();
-struct GH_vertex_ll * GH_createIVertex(struct GH_point * A, struct GH_point * B, float a); 
+struct GH_vertex_ll * GH_createIVertex(struct GH_point * A, struct GH_point * B, double a); 
 void GH_linkVerticies(struct GH_vertex_ll * a, struct GH_vertex_ll * b); 
 void GH_insertAfter(struct GH_vertex_ll * ip, struct GH_vertex_ll * ti); 
 void GH_unlink(struct GH_vertex_ll * v); 
 bool GH_polyHasIntersectingNotDone(struct GH_vertex_ll * v); 
 void GH_sortedInsert(struct GH_vertex_ll * P1, struct GH_vertex_ll * P2, struct GH_vertex_ll * I); 
-float GH_calc_WEC(struct GH_point * A, struct GH_point * B, struct GH_point * C, struct GH_point * D); 
+double GH_calc_WEC(struct GH_point * A, struct GH_point * B, struct GH_point * C, struct GH_point * D); 
 int outcode(struct GH_point * p, double L, double R, double B, double T); 
 bool GH_pointCompare(struct GH_point * a, struct GH_point * b); 
 enum intertype_e GH_intersect(struct GH_point * P1, struct GH_point * P2, struct GH_point * Q1, struct GH_point * Q2,
-	float * alphaP, float * alphaQ); 
+	double * alphaP, double * alphaQ); 
 	
 
 bool GH_pointInPoly(struct GH_vertex_ll * poly, struct GH_point * point); 
-float GH_calcAlpha(struct GH_point * point, struct GH_point * start, struct GH_point * finish); 
+double GH_calcAlpha(struct GH_point * point, struct GH_point * start, struct GH_point * finish); 
 int GH_polySize(struct GH_vertex_ll * a); 
 
 bool GH_phase_one(struct GH_vertex_ll * subject, struct GH_vertex_ll * clip); 
 void GH_phase_two(struct GH_vertex_ll * p1, struct GH_vertex_ll * p2, enum GH_op_t op);
 struct GH_vertex_ll * GH_phase_three(struct GH_vertex_ll * p1, struct GH_vertex_ll * p2);
+void GHKK_phase_3_prep(struct GH_vertex_ll * p1, struct GH_vertex_ll * p2);
+bool GHKK_phase_3_fp(struct GH_vertex_ll * p1, struct GH_vertex_ll * p2, enum GH_op_t op, struct GH_vertex_ll ** outpoly);
 
 /*
  * This function does not indicate bits where A or B = C or D, only when there is an intersection point

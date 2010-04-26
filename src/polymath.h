@@ -25,10 +25,17 @@
 #define _POLYMATH_H_
 
 enum GH_op_t {
-	GH_op_subtract,
-	GH_op_intersect,
-	GH_op_union
+	GH_op_subtract, // return where only a present and not b [same walker as intersect, invert b inpoly checks]
+	GH_op_intersect, // return where only both present
+	
+	GH_op_union, // Return where either present
+	GH_op_xor,	// Return where only 1 or other, not both
 	};
+
+struct GH_polygon_ll {
+	struct GH_polygon_ll * next;
+	struct GH_vertex_ll * firstv;
+};
 
 struct GH_vertex_ll;
 
@@ -36,7 +43,7 @@ struct GH_vertex_ll;
 struct GH_vertex_ll * GH_polyPoint(struct GH_vertex_ll * v, double x, double y);
 struct GH_vertex_ll * GH_getPolyPoint(struct GH_vertex_ll *v, double * x, double * y);
 
-struct GH_vertex_ll * GH_polygon_boolean(struct GH_vertex_ll * p1, struct GH_vertex_ll * p2, enum GH_op_t op);
+struct GH_polygon_ll * GH_polygon_boolean(struct GH_vertex_ll * p1, struct GH_vertex_ll * p2, enum GH_op_t op);
 void GH_free_polygons(struct GH_vertex_ll * polys);
 
 #endif
