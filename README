@@ -1,3 +1,6 @@
+DO NOT USE THIS YET. THE CODE QUALITY IS CURRENTLY CRAP. NEEDS MORE TESTS;
+MORE ASSERTIONS; COMMENTS AND A LOT OF SPEEDUPS. PURELY ALPHA QUALITY!
+
 Description:
 
 Polyclip is a simple library for computing operations on polygons, with 
