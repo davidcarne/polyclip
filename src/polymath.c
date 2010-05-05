@@ -58,9 +58,15 @@ struct GH_vertex_ll * __find_intersect(struct GH_vertex_ll * vo)
 	}
 	return v;
 }
-struct GH_vertex_ll * __find_intersect_nb_notnone(struct GH_vertex_ll * v)
+
+/* Find a meaningful vertex to calculate the second polygon from.
+ * If there is no meaningful second vertex
+ */
+struct GH_vertex_ll * __find_intersect_nb_notnone_notdbl(struct GH_vertex_ll * v)
 {
-	while (v && !(v->intersect && v->neighbor->flag != FLG_NONE))
+	while (v && !(v->intersect && v->neighbor->flag != FLG_NONE
+                    && v->neighbor->flag != FLG_EN_EX
+                    && v->neighbor->flag != FLG_EX_EN))
 		v = v->next;
 	return v;
 }
@@ -667,6 +673,49 @@ enum flag_type_e GHKK_calcVertexFlag(enum edge_status_t gamma_p, enum edge_statu
 	assert(false);
 }
 
+bool GH_tri_orient(struct GH_vertex_ll * prev, struct GH_vertex_ll * cur, struct GH_vertex_ll * next)
+{
+	double orient = (cur->c.x - prev->c.x) * (next->c.y - prev->c.y) - (next->c.x - prev->c.x) * (cur->c.y * prev->c.y);
+	assert (orient != 0);
+	return orient > 0;
+}
+
+bool GH_angle_between(double a, double b, double t)
+{
+    if (b < a)
+        b += M_PI * 2;
+    
+    if (t < a)
+        t += M_PI * 2;
+    
+    return !(t > b);
+}
+
+/*
+ * a_p b_p
+ *   \ /
+ *    i------ h
+ *   / \
+ * a_n b_n
+ *
+ * Measures angle from *_[p_n] to h. If angle of b_p and a_n are on opposite sides of division made 
+ * by a_p->i->b_n, then both polygons go the same way [aka, en is coupled to the en, ex coupled to the ex]
+ *
+ */
+bool GH_intersection_same_way(struct GH_vertex_ll * a_p, struct GH_vertex_ll * a_n, 
+                              struct GH_vertex_ll * b_p, struct GH_vertex_ll * b_n,
+                              struct GH_vertex_ll * i)
+{
+    double a_p_sl = atan2(a_p->c.y - i->c.y, a_p->c.x - i->c.x);
+    double a_n_sl = atan2(a_n->c.y - i->c.y, a_n->c.x - i->c.x);
+    
+    double b_p_sl = atan2(b_p->c.y - i->c.y, b_p->c.x - i->c.x);
+    double b_n_sl = atan2(b_n->c.y - i->c.y, b_n->c.x - i->c.x);
+    
+
+    return GH_angle_between(a_p_sl, b_n_sl, a_n_sl) == GH_angle_between(a_p_sl, b_n_sl, b_p_sl);
+}
+                          
 void GHKK_phase_two_firstpoly(struct GH_vertex_ll * p, struct GH_vertex_ll * other, enum GH_op_t op)
 {
 	assert(p); assert(other);
@@ -678,6 +727,15 @@ void GHKK_phase_two_firstpoly(struct GH_vertex_ll * p, struct GH_vertex_ll * oth
 		gamma_p = GHKK_edgeStatus(Cip, Ci, other);
 		gamma_n = GHKK_edgeStatus(Ci, Cin, other);
 		Ci->flag = GHKK_calcVertexFlag(gamma_p, gamma_n);
+		struct GH_vertex_ll * n_prev = Ci->neighbor->prev, * n_i = Ci->neighbor, * n_next =  Ci->neighbor->next;
+		if (!n_prev) n_prev = __find_last(other);
+		if (!n_next) n_next = other;
+	
+        if (Ci->flag == FLG_EN_EX || Ci->flag == FLG_EX_EN)
+            Ci->cross_change = Ci->neighbor->cross_change = !GH_intersection_same_way(Cip, Cin, n_prev, n_next, Ci);
+        else 
+            Ci->cross_change = false;
+    
 #ifdef PHASE2_VERBOSE
 		printf("(%4.2f %4.2f)->(%4.2f %4.2f)->(%4.2f %4.2f): %d %d %d\n", 
 			   Cip->c.x, Cip->c.y,
@@ -688,7 +746,7 @@ void GHKK_phase_two_firstpoly(struct GH_vertex_ll * p, struct GH_vertex_ll * oth
 	END_FOR_VERTEX_I_CENTRI(p, Cip, Ci, Cin);
 }
 
-enum flag_type_e GHKK_invertFlag(enum flag_type_e e)
+enum flag_type_e GHKK_invertFlag(enum flag_type_e e, bool cross_coupled)
 {
 	switch (e)
 	{	
@@ -699,48 +757,90 @@ enum flag_type_e GHKK_invertFlag(enum flag_type_e e)
 		case FLG_EX:
 			return FLG_EN;
 		case FLG_EN_EX:
-			return FLG_EX_EN;
+            return FLG_EN_EX;
+			//return cross_coupled ? FLG_EN_EX : FLG_EX_EN ;
 		case FLG_EX_EN:
-			return FLG_EN_EX;
+            return FLG_EX_EN;
+			//return cross_coupled ? FLG_EX_EN : FLG_EN_EX;
 		default:
 			assert(false);
 	}
 }
+/*
+enum flag_type_e GHKK_doCC(enum flag_type_e e, bool cross_coupled)
+{
+	switch (e)
+	{	
+		case FLG_EN_EX:
+			return cross_coupled ? FLG_EX_EN : FLG_EN_EX ;
+		case FLG_EX_EN:
+			return cross_coupled ? FLG_EN_EX : FLG_EX_EN;
+		default:
+			return e;
+	}
+}*/
 void GHKK_phase_two_secondpoly(struct GH_vertex_ll * p, struct GH_vertex_ll * other, enum GH_op_t op)
 {
 	assert(p); assert(other);
 	
-	struct GH_vertex_ll * Ci = __find_intersect_nb_notnone(p);
-	assert(Ci);
+	struct GH_vertex_ll * Ci = __find_intersect_nb_notnone_notdbl(p);
 	
-	struct GH_vertex_ll * Cip = Ci->prev;
-	if (!Cip)
-		Cip = __find_last(Ci);
-	struct GH_vertex_ll * Cin = Ci->next;
-	enum edge_status_t gamma_p, gamma_n;
+	struct GH_vertex_ll * Cip;
+    struct GH_vertex_ll * Cin;
+    bool flipflags = false;
+    enum edge_status_t gamma_p, gamma_n;
 
-	assert(Ci); assert(Cip); assert(Cin); assert(Ci->neighbor); assert(Ci->intersect);
+    if (Ci)
+    {
+        Cip = Ci->prev;
+        if (!Cip)
+            Cip = __find_last(Ci);
+        Cin = Ci->next;
 
-	gamma_p = GHKK_edgeStatus(Cip, Ci, other);
-	gamma_n = GHKK_edgeStatus(Ci, Cin, other);
-	Ci->flag = GHKK_calcVertexFlag(gamma_p, gamma_n);
+        assert(Ci); assert(Cip); assert(Cin); assert(Ci->neighbor); assert(Ci->intersect);
 
-	enum flag_type_e Ciflag_inv = GHKK_invertFlag(Ci->flag);
+        gamma_p = GHKK_edgeStatus(Cip, Ci, other);
+        gamma_n = GHKK_edgeStatus(Ci, Cin, other);
+        
+        Ci->flag = GHKK_calcVertexFlag(gamma_p, gamma_n);
+        enum flag_type_e Ciflag_inv = GHKK_invertFlag(Ci->flag, false);
 #ifdef PHASE2_VERBOSE
-	printf("(%4.2f %4.2f) -> (%4.2f %4.2f) -> (%4.2f %4.2f): gamma_p = %x, gamma_n = %x, Ci->flag = %x, CiInv = %x, Ci->neighbor->flag = %x\n", 
-		Cip->c.x, Cip->c.y, Ci->c.x, Ci->c.y, Cin->c.x, Cin->c.y, 
-		gamma_p, gamma_n, Ci->flag, Ciflag_inv, Ci->neighbor->flag);
+        printf("(%4.2f %4.2f) -> (%4.2f %4.2f) -> (%4.2f %4.2f): gamma_p = %x, gamma_n = %x, Ci->flag = %x, CiInv = %x, Ci->neighbor->flag = %x\n", 
+            Cip->c.x, Cip->c.y, Ci->c.x, Ci->c.y, Cin->c.x, Cin->c.y, 
+            gamma_p, gamma_n, Ci->flag, Ciflag_inv, Ci->neighbor->flag);
 #endif
-	assert(Ci->flag == Ci->neighbor->flag || Ciflag_inv == Ci->neighbor->flag);
+    
+        assert(Ci->flag == Ci->neighbor->flag || Ciflag_inv == Ci->neighbor->flag);
 
-	bool flipflags = Ciflag_inv == Ci->neighbor->flag;
-
+        flipflags = (Ciflag_inv == Ci->neighbor->flag);
+    }
+    
 	struct GH_vertex_ll * i;
 	FOR_VERTEX_I(p, i)
-		if (flipflags)
-			i->flag = GHKK_invertFlag(i->neighbor->flag);
-		else
-			i->flag = i->neighbor->flag;
+        if (i->neighbor->flag == FLG_EN_EX || i->neighbor->flag == FLG_EX_EN)
+        {
+            Cip = i->prev;
+            Cin = i->next;
+            
+            if (!Cip)
+                Cip =  __find_last(i); // TODO: expensive search not needed
+                // We need to flip if one is inside other
+                // Calculate the first EN_EX, save in boolean, flip boolean every EN/EX encountered
+                // Do not count second element of a couple
+            
+            if (!Cin)
+                Cin = p;
+                
+            gamma_p = GHKK_edgeStatus(Cip, i, other);
+            gamma_n = GHKK_edgeStatus(i, Cin, other);
+            i->flag = GHKK_calcVertexFlag(gamma_p, gamma_n);
+        } else {
+            if (flipflags)
+                i->flag = GHKK_invertFlag(i->neighbor->flag, i->cross_change);
+            else
+                i->flag = i->neighbor->flag;
+            //	i->flag = GHKK_doCC(i->neighbor->flag, i->cross_change);
+        }
 	END_FOR_VERTEX_I(p, i);
 
 }
@@ -802,10 +902,12 @@ void GH_phase_two(struct GH_vertex_ll * p1, struct GH_vertex_ll * p2, enum GH_op
 
 void GHKK_delete_flag(struct GH_vertex_ll * v, enum flag_type_e flag)
 {
+	if (flag == FLG_NONE)
+		return;
+	
 	assert(v);
 	assert(v->intersect);
 	assert(v->flag != FLG_NONE);
-	assert(flag != FLG_NONE);
 	assert(v->neighbor);
 	assert(!v->couple || v->couple->flag == v->flag);
 	
@@ -831,13 +933,52 @@ void GHKK_delete_flag(struct GH_vertex_ll * v, enum flag_type_e flag)
 	{
 		assert (!v->couple);
 		v->flag = FLG_EN;
+	}
+	else if (v->flag == FLG_EN_EX && flag == FLG_EX)
+	{
+		assert (!v->couple);
+		v->flag = FLG_EN;
+		
+	} else if (v->flag == FLG_EX_EN && flag == FLG_EN)
+	{
+		assert (!v->couple);
+		v->flag = FLG_EX;
+	} else if (v->flag == FLG_EX_EN && flag == FLG_EX_EN)
+	{
+		assert (!v->couple);
+		v->flag = FLG_NONE;
+	} else if (v->flag == FLG_EN_EX && flag == FLG_EN_EX)
+	{
+		assert (!v->couple);
+		v->flag = FLG_NONE;
 	} else {
 		assert(false);
 	}
 
 }
 
-enum flag_type_e GH_choose_flag(enum flag_type_e e)
+enum flag_type_e GH_choose_flag_intersect(enum flag_type_e e, enum trv_dir d)
+{
+	switch (e)
+	{
+		case FLG_NONE:
+			return FLG_NONE;
+		case FLG_EN:
+			return FLG_EN;
+		case FLG_EX:
+			return FLG_EX;
+			
+		case FLG_EN_EX:
+			if (trvIsAcross(d))
+				return FLG_EN_EX;
+			return trvIsForward(d) ? FLG_EN : FLG_EX;
+			
+		case FLG_EX_EN:
+			return trvIsForward(d) ? FLG_EX : FLG_EN;
+	}
+}
+
+enum flag_type_e GH_choose_flag_union(enum flag_type_e e, enum trv_dir d)
 {
 	switch (e)
 	{
@@ -854,177 +995,194 @@ enum flag_type_e GH_choose_flag(enum flag_type_e e)
 	}
 }
 
-
-
-bool GH_startdir_union(enum flag_type_e flag)
+enum trv_dir GH_startdir_union(enum flag_type_e flag)
 {
 	
 	// Choose starting direction based on flag.
 	switch (flag)
 	{
 		case FLG_EX:
-			return false;
-			break;
+			return DIR_REV;
 		case FLG_EN:
-			return true;
-			break;
+			return DIR_FWD;
 		case FLG_EN_EX:
-			return true;
-			break;
+			return DIR_FWD;
 		case FLG_EX_EN:
-			assert(false); // TODO: sane value for me
-			break;
+			return DIR_ACFWD;	// Only get to this via the other vertex
 	}
 }
 
-bool GH_startdir_intersect(enum flag_type_e flag)
+enum trv_dir GH_startdir_intersect(enum flag_type_e flag)
 {
 	
 	// Choose starting direction based on flag.
 	switch (flag)
 	{
 		case FLG_EX:
-			return true;
+			return DIR_FWD;
 			break;
 		case FLG_EN:
+			return DIR_REV;
+			break;
+		case FLG_EN_EX:
+			return DIR_ACFWD;
+			break;
+		case FLG_EX_EN:	// either works
+			return DIR_FWD;
+			break;
+	}
+}
+
+enum trv_dir trvAcross(enum trv_dir a)
+{
+	switch (a)
+	{
+		case DIR_FWD:
+			return DIR_ACFWD;
+		case DIR_REV:
+			return DIR_ACREV;
+		case DIR_ACFWD:
+			return DIR_FWD;
+		case DIR_ACREV:
+			return DIR_REV;
+	}
+}
+enum trv_dir trvReverse(enum trv_dir a)
+{
+	switch (a)
+	{
+		case DIR_FWD:
+			return DIR_REV;
+		case DIR_REV:
+			return DIR_FWD;
+		case DIR_ACFWD:
+			return DIR_ACREV;
+		case DIR_ACREV:
+			return DIR_ACFWD;
+	}
+			
+}
+
+bool trvIsAcross(enum trv_dir a)
+{
+	switch (a)
+	{
+		case DIR_FWD:
+		case DIR_REV:
 			return false;
-			break;
-		case FLG_EN_EX:
+		case DIR_ACFWD:
+		case DIR_ACREV:
 			return true;
-			break;
-		case FLG_EX_EN:
-			assert(false); // TODO: sane value for me
-			break;
 	}
 }
 
-void GH_state_transition_union(bool direction, struct GH_vertex_ll * v, struct GH_vertex_ll ** outvert, bool * outdir)
+bool trvIsForward(enum trv_dir a)
 {
-	assert(v);
-	assert(outvert);
-	
-	// If this is not an intersection vertex, simply continue
-	if (!v->intersect)
+	switch (a)
 	{
-		*outvert = direction ? v->next : v->prev;
-		*outdir = direction;
-		return;
+		case DIR_FWD:
+		case DIR_ACFWD:
+			return true;
+		case DIR_REV:
+		case DIR_ACREV:
+			return false;
+	}
+}
+
+bool trvDirSame(enum trv_dir a, enum trv_dir b)
+{
+	return trvIsForward(a) == trvIsForward(b);
+}
+
+struct GH_vertex_ll * GH_followTransversal(struct GH_vertex_ll * src, enum trv_dir in, enum trv_dir out, enum flag_type_e flag)
+{
+	
+	GHKK_delete_flag(src, flag);
+	
+	switch (out)
+	{
+		case DIR_ACFWD:
+			assert(src->neighbor);
+			return src->neighbor;
+			
+		case DIR_ACREV:
+			assert(src->neighbor);
+			return src->neighbor;
+			
+		case DIR_FWD:
+			if (trvDirSame(in, out) && src->flag != FLG_NONE)
+				return src;
+			return src->next;
+			
+		case DIR_REV:
+			if (trvDirSame(in, out) && src->flag != FLG_NONE)
+				return src;
+			return src->prev;
 	}
 	
-	enum flag_type_e chosen_flag = GH_choose_flag(v->flag);
-	
-	// Otherwise, we need to transition through the intersection
+}
+
+
+enum trv_dir GH_state_transition_union(enum trv_dir direction, enum flag_type_e chosen_flag)
+{
+    
 	switch (chosen_flag)
 	{
-		case FLG_EN:			
-			GHKK_delete_flag(v, FLG_EN);
-			break;
-			
-		case FLG_EX:
-			GHKK_delete_flag(v, FLG_EX);
-			direction = !direction;
-			break;
-			
-		default:
-			assert(false); // Flag we can't handle yet encountered
-	}
-	
-bounce_back:
-	
-	// Move across to the neighbor, and then continue on there
-	v = v->neighbor;
-	
-	
-	switch (v->flag)
-	{
-		case FLG_NONE:
-			assert(false);
-		
 		case FLG_EN:
-			GHKK_delete_flag(v, FLG_EN);
-			direction = !direction;
-			break;
-		case FLG_EX:
-			GHKK_delete_flag(v, FLG_EX);
-			break;
-		
-		case FLG_EX_EN:
-			GHKK_delete_flag(v, FLG_EX_EN);
-			goto bounce_back;
+			if (trvIsAcross(direction))
+			{
+				return trvReverse(trvAcross(direction));
+			} else {
+				return trvAcross(direction);
+			}
 			break;
 			
+		case FLG_EX:
+			if (trvIsAcross(direction))
+			{
+				return trvAcross(direction);
+			} else {
+				return trvReverse(trvAcross(direction));
+			}
+			break;
+			
+			// make warning go away
 		default:
-			assert(false); // Flag we can't handle yet encountered
+			assert(false);
 	}
-	
-	*outvert = direction ? v->next : v->prev;
-	*outdir = direction;
 
 }
 
-void GH_state_transition_intersect(bool direction, struct GH_vertex_ll * v, struct GH_vertex_ll ** outvert, bool * outdir)
+enum trv_dir GH_state_transition_intersect(enum trv_dir indir, enum flag_type_e chosen_flag)
 {
-	assert(v);
-	assert(outvert);
-	
-	// If this is not an intersection vertex, simply continue
-	if (!v->intersect)
-	{
-		*outvert = direction ? v->next : v->prev;
-		*outdir = direction;
-		return;
-	}
-	
-	enum flag_type_e chosen_flag = GH_choose_flag(v->flag);
-	
-	// Otherwise, we need to transition through the intersection
 	switch (chosen_flag)
 	{
-		case FLG_EN:			
-			GHKK_delete_flag(v, FLG_EN);
-			break;
-			
-		case FLG_EX:
-			GHKK_delete_flag(v, FLG_EX);
-			direction = !direction;
-			break;
-			
-		default:
-			assert(false); // Flag we can't handle yet encountered
-	}
-	
-bounce_back:
-	
-	// Move across to the neighbor, and then continue on there
-	v = v->neighbor;
-	
-	switch (v->flag)
-	{
-		case FLG_NONE:
-			assert(false);
-			
 		case FLG_EN:
-			GHKK_delete_flag(v, FLG_EN);
-			direction = !direction;
-			break;
-		case FLG_EX:
-			GHKK_delete_flag(v, FLG_EX);
+			if (trvIsAcross(indir))
+			{
+				return DIR_FWD;
+			} else {
+				return DIR_ACFWD;
+			}
 			break;
 			
+		case FLG_EX:
+			if (trvIsAcross(indir))
+			{
+				return DIR_REV;
+			} else {
+				return DIR_ACFWD;
+			}
+			break;
+		
 		case FLG_EN_EX:
-			GHKK_delete_flag(v, FLG_EN_EX);
-			goto bounce_back;
-			
-		case FLG_EX_EN:
-			GHKK_delete_flag(v, FLG_EX_EN);
-			break;
-			
+			if (trvIsAcross(indir))
+				return DIR_ACFWD;
+				
+			// make warning go away
 		default:
-			assert(false); // Flag we can't handle yet encountered
+			assert(false);
 	}
-	
-	*outvert = direction ? v->next : v->prev;
-	*outdir = direction;
 	
 }
 
@@ -1049,7 +1207,7 @@ bool GHKK_phase_3_fp(struct GH_vertex_ll * p1, struct GH_vertex_ll * p2, enum GH
 	struct GH_vertex_ll * l;
 	assert(p1); assert(p2); assert(outpoly);
 	
-	bool direction = 1;
+	enum trv_dir direction;
 	l = __find_meets_p3_criteria(p1);
 
 	if (!l)
@@ -1067,32 +1225,61 @@ bool GHKK_phase_3_fp(struct GH_vertex_ll * p1, struct GH_vertex_ll * p2, enum GH
 			assert(false);
 	}
 	
+	enum trv_dir start_dir = direction;
+	
 	struct GH_vertex_ll * v = l;
 	
 	struct GH_vertex_ll * newpoly = NULL;
 	struct GH_vertex_ll * nextout = NULL;
+	struct GH_vertex_ll * last = NULL;
 	do {
-		//printf("%4.2f %4.2f\n", v->c.x, v->c.y);
-		nextout = GH_polyPoint(nextout, v->c.x, v->c.y);
+		// If not across-path, and not internal
+		if (!trvIsAcross(direction) && v != last)
+			nextout = GH_polyPoint(nextout, v->c.x, v->c.y);
+		
 		if (!newpoly)
 			newpoly = nextout;
 
-		bool newdir;
+		enum trv_dir newdir;
 		struct GH_vertex_ll * newvert;
-		switch (op)
-		{
-			case GH_op_union:
-				GH_state_transition_union(direction,v, &newvert, &newdir);
-				break;
-			case GH_op_intersect:
-				GH_state_transition_intersect(direction,v, &newvert, &newdir);
-				break;
-		}
 		
+		
+#ifdef PHASE3_VERBOSE
+		printf("Starting vertex %4.2f %4.2f %s [%p] - %s\n", v->c.x, v->c.y, flg_dec(v->flag), v, td_dec(direction));
+#endif
+		if (!v->intersect)
+		{
+			newvert = GH_followTransversal(v, direction, direction, FLG_NONE);
+			newdir = direction;
+		} else {
+			
+			enum flag_type_e chosen_flag;
+			switch (op)
+			{
+				case GH_op_union:
+					chosen_flag = GH_choose_flag_union(v->flag, direction);
+					newdir = GH_state_transition_union(direction,chosen_flag);
+					break;
+				case GH_op_intersect:
+					chosen_flag = GH_choose_flag_intersect(v->flag, direction);
+					newdir = GH_state_transition_intersect(direction,chosen_flag);
+					break;
+			}
+			
+#ifdef PHASE3_VERBOSE	
+			printf("\tChosen flag %s; incoming dir %s, outgoing dir %s\n", flg_dec(chosen_flag), td_dec(direction), td_dec(newdir));
+#endif
+			newvert = GH_followTransversal(v, direction, newdir, chosen_flag);
+#ifdef PHASE3_VERBOSE	
+			printf("\tTraversed to vertex %4.2f %4.2f %s [%p]\n",newvert->c.x, newvert->c.y, flg_dec(newvert->flag),newvert);
+#endif
+			
+		}
+		last = v;
 		v = newvert;
 		direction = newdir;
 		
-	} while (v != l && v != l->neighbor);
+	} while (v != l || start_dir != direction);
 	
 	*outpoly = newpoly;
 	return true;

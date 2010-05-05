@@ -38,12 +38,14 @@ static void p3_test_overlapping_rects_1(void)
 	
 	struct GH_vertex_ll * o;
 	
+	//polyDump(r1);
+	//polyDump(r2);
 	GHKK_phase_3_prep(r1, r2);
 
 	bool ok = GHKK_phase_3_fp(r1, r2, GH_op_union, &o);
 	LT_ASSERT(ok);
 	//polyDump(o);
-	LT_ASSERT(polySize(o) == 8);
+	LT_REQUIRE(polySize(o) == 8);
 	
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 0), 4, 2));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 1), 6, 2));
@@ -95,7 +97,7 @@ static void p3_test_overlapping_rects_2(void)
 	bool ok = GHKK_phase_3_fp(r1, r2, GH_op_union, &o);
 	LT_ASSERT(ok);
 	//polyDump(o);
-	LT_ASSERT(polySize(o) == 8);
+	LT_REQUIRE(polySize(o) == 8);
 	
 	
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 0), 4, 2));
@@ -133,7 +135,7 @@ static void p3_test_adjacent_rects_1(void)
 	bool ok = GHKK_phase_3_fp(r1, r2, GH_op_union, &o);
 	LT_ASSERT(ok);
 	//polyDump(o);
-	LT_ASSERT(polySize(o) == 6);
+	LT_REQUIRE(polySize(o) == 6);
 	
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 0), 4, 4));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 1), 4, 8));
@@ -168,7 +170,7 @@ static void p3_test_adjacent_rects_2(void)
 	bool ok = GHKK_phase_3_fp(r1, r2, GH_op_union, &o);
 	LT_ASSERT(ok);
 	//polyDump(o);
-	LT_ASSERT(polySize(o) == 6);
+	LT_REQUIRE(polySize(o) == 6);
 	
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 0), 4, 4));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 1), 4, 8));
@@ -200,7 +202,7 @@ static void p3_test_overlapborder_rects_1(void)
 	
 	bool ok = GHKK_phase_3_fp(r1, r2, GH_op_union, &o);
 	LT_ASSERT(ok);
-	LT_ASSERT(polySize(o) == 8);
+	LT_REQUIRE(polySize(o) == 8);
 	
 	
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 0), 4, 4));
@@ -235,7 +237,7 @@ static void p3_test_overlapborder_rects_2(void)
 	
 	bool ok = GHKK_phase_3_fp(r1, r2, GH_op_union, &o);
 	LT_ASSERT(ok);
-	LT_ASSERT(polySize(o) == 8);
+	LT_REQUIRE(polySize(o) == 8);
 	
 	
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 0), 4, 4));
@@ -503,7 +505,7 @@ static void p3_tri_inside(void)
 	bool ok = GHKK_phase_3_fp(r, tri, GH_op_union, &o);
 	LT_ASSERT(ok);
 	
-	polyDump(o);
+	//polyDump(o);
 	
 	ok = GHKK_phase_3_fp(r, tri, GH_op_union, &o);
 	LT_ASSERT(!ok);
@@ -537,10 +539,16 @@ static void shape_test_1_1(void)
 	enum GH_op_t op = GH_op_union;
 	GH_phase_two(r, pokey, op);
 	
+	//polyDump(r);
+	//polyDump(pokey);
+	
 	GHKK_phase_3_prep(r, pokey);
 	struct GH_vertex_ll * o;
 	
 	bool ok = GHKK_phase_3_fp(pokey, r, GH_op_union, &o);
+	
+	//polyDump(o);
+	
 	LT_ASSERT(ok);
 	
 	LT_REQUIRE(polySize(o) == 9);

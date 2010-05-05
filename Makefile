@@ -12,10 +12,10 @@ TEST_SRCS=tests/main.c  tests/libtest.c \
 TEST_OBJS=$(patsubst %.c,build/%_t.o, $(TEST_SRCS) )
 
 test: build/test_runner
-	./build/test_runner
+	./build/test_runner $(TESTNAME)
 
 dtest: build/test_runner
-	gdb ./build/test_runner
+	gdb ./build/test_runner --command=gdbsetup $(TESTNAME)
 	
 CFLAGS=-Isrc/ -DINT_ASSERT -ggdb3
 

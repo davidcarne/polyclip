@@ -19,7 +19,21 @@ const char * flg_dec(enum flag_type_e e)
 	}
 }
 
-
+const char * td_dec(enum trv_dir e)
+{
+	switch (e)
+	{
+		case DIR_FWD:
+			return "DIR_FWD";
+		case DIR_REV:
+			return "DIR_REV";
+		case DIR_ACFWD:
+			return "DIR_ACFWD";
+		case DIR_ACREV:
+			return "DIR_ACREV";
+		default: return "BADDIR!!!!";
+	}
+}
 void polyDump(struct GH_vertex_ll * p)
 {
 	int c = 0;

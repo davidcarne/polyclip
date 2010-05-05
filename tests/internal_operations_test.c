@@ -5,7 +5,7 @@
 #include "support.h"
 #include <stdio.h>
 
-void testNoCrossingLine(void)
+static void testNoCrossingLine(void)
 {
 	struct GH_point a = {10,10}, b = {20,20}, c = {16,15}, d = {30, 29};
 	double alphaP, alphaQ;
@@ -15,7 +15,7 @@ void testNoCrossingLine(void)
 	LT_ASSERT(inter_type == INTER_NONE);
 }
 
-void testCloseLines(void)
+static void testCloseLines(void)
 {
 	
 	struct GH_point a = {10,10}, b = {20,20}, c = {10.001, 10}, d = {20.001, 20};
@@ -27,7 +27,7 @@ void testCloseLines(void)
 	LT_ASSERT(inter_type == INTER_NONE);
 }
 
-void testCoaxialOverlappingLines(void)
+static void testCoaxialOverlappingLines(void)
 {
 	struct GH_point a = {10,10}, b = {20,20}, c = {5, 5}, d = {15, 15};
 	double alphaP, alphaQ;
@@ -37,7 +37,7 @@ void testCoaxialOverlappingLines(void)
 	LT_ASSERT(inter_type == INTER_COINCIDE);
 }
 
-void testIdenticalLines(void)
+static void testIdenticalLines(void)
 {
 	struct GH_point a = {10,10}, b = {20,20}, c = {10, 10}, d = {20, 20};
 	double alphaP, alphaQ;
@@ -48,7 +48,7 @@ void testIdenticalLines(void)
 }
 
 
-void testTouch1(void)
+static void testTouch1(void)
 {
 	struct GH_point a = {10,10}, b = {20,20}, c = {5, 10}, d = {20, 20};
 	double alphaP, alphaQ;
@@ -60,7 +60,7 @@ void testTouch1(void)
 	LT_ASSERT(alphaQ == 1.0);
 }
 
-void testTouch2(void)
+static void testTouch2(void)
 {
 	struct GH_point a = {10,10}, b = {20,20}, c = {5, 10}, d = {15, 15};
 	double alphaP, alphaQ;
@@ -72,7 +72,7 @@ void testTouch2(void)
 	LT_ASSERT(alphaQ == 1.0);
 }
 
-void testTouch3(void)
+static void testTouch3(void)
 {
 	struct GH_point a = {10,10}, b = {20,20}, c = {15, 15}, d = {5, 10};
 	double alphaP, alphaQ;
@@ -82,7 +82,7 @@ void testTouch3(void)
 	LT_ASSERT(inter_type == INTER_NONE);
 }
 
-void testTouch4(void)
+static void testTouch4(void)
 {
 	struct GH_point a = {10,10}, b = {20,20}, c = {15, 15}, d = {5, 10};
 	double alphaP, alphaQ;
@@ -93,7 +93,7 @@ void testTouch4(void)
 }
 
 
-void testCoincide1(void)
+static void testCoincide1(void)
 {
 	struct GH_point a = {4,4}, b = {0,4}, c = {1, 4}, d = {5, 4};
 	double alphaP, alphaQ;
@@ -107,7 +107,7 @@ void testCoincide1(void)
 	LT_ASSERT(bits & C_ONAB);
 }
 
-void testPointInPolygonBug1(void)
+static void testPointInPolygonBug1(void)
 {
 	struct GH_vertex_ll * r1 = createRect(4,3,2,2);
 	struct GH_point p1 = {1.5, 4};
@@ -116,7 +116,7 @@ void testPointInPolygonBug1(void)
 }
 
 
-void testPointInPolygonBug2(void)
+static void testPointInPolygonBug2(void)
 {
 	struct GH_vertex_ll * r = NULL, * p;
 	r = GH_polyPoint(NULL, 3, 2);
@@ -130,7 +130,7 @@ void testPointInPolygonBug2(void)
 	
 }
 
-void testPointInPolygonBug3(void)
+static void testPointInPolygonBug3(void)
 {
 	struct GH_vertex_ll * r = NULL, * p;
 	r = GH_polyPoint(NULL, 1, 2);
@@ -143,7 +143,7 @@ void testPointInPolygonBug3(void)
 	
 }
 
-void testPointInPolygonBug4(void)
+static void testPointInPolygonBug4(void)
 {
 	struct GH_vertex_ll * r = NULL, * p;
 	r = GH_polyPoint(NULL, 1, 2);
@@ -157,7 +157,7 @@ void testPointInPolygonBug4(void)
 	
 }
 
-void testPointInPolygonBug5(void)
+static void testPointInPolygonBug5(void)
 {
 	struct GH_vertex_ll * r = NULL, * p;
 	r = GH_polyPoint(NULL, 6, 4);
@@ -171,7 +171,7 @@ void testPointInPolygonBug5(void)
 	
 }
 
-void testPointInPolygonBug6(void)
+static void testPointInPolygonBug6(void)
 {
 	struct GH_vertex_ll * r = NULL, * p;
 	r = GH_polyPoint(NULL, 1, 2);
@@ -184,7 +184,7 @@ void testPointInPolygonBug6(void)
 	
 }
 
-void testPointInPolygonBug7(void)
+static void testPointInPolygonBug7(void)
 {
 	struct GH_vertex_ll * pokey = NULL, * p;
 	pokey = GH_polyPoint(NULL, 0, 0);
@@ -198,6 +198,35 @@ void testPointInPolygonBug7(void)
 	struct GH_point p1 = {1, 2};
 	LT_ASSERT(GH_pointInPoly(pokey, &p1));
 	
+}
+
+static void test_same_way_1(void)
+{
+    struct GH_vertex_ll a1, a2, b1, b2, i;
+    a1.c.x = 3; a1.c.y = 4;
+    a2.c.x = 2; a2.c.y = -5;
+    
+    b1.c.x = 6; b1.c.y = 7;
+    b2.c.x = 8; b1.c.y = 0;
+    i .c.x = 4; i .c.y = 2;
+    
+    
+    LT_ASSERT(GH_intersection_same_way(&a1, &a2, &b1, &b2, &i));
+}
+
+static void test_same_way_2(void)
+{
+    struct GH_vertex_ll a1, a2, b1, b2, i;
+    a1.c.x = 3; a1.c.y = 4;
+    a2.c.x = 2; a2.c.y = -5;
+    
+    b1.c.x = 6; b1.c.y = 0;
+    b2.c.x = 8; b1.c.y = 7;
+    i .c.x = 4; i .c.y = 2;
+    
+    
+    LT_ASSERT(!GH_intersection_same_way(&a1, &a2, &b1, &b2, &i));
+    
 }
 
 void internal_ops_tests(void)
@@ -218,4 +247,6 @@ void internal_ops_tests(void)
 	_T(testPointInPolygonBug5);
 	_T(testPointInPolygonBug6);
 	_T(testPointInPolygonBug7);
+    _T(test_same_way_1);
+    _T(test_same_way_2);
 }

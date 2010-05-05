@@ -68,6 +68,23 @@ enum intertype_e {
 	INTER_COINCIDE,
 };
 
+enum trv_dir {
+	DIR_FWD,
+	DIR_REV,
+	DIR_ACFWD,
+	DIR_ACREV
+};
+
+bool trvIsForward(enum trv_dir a);
+bool trvIsAcross(enum trv_dir a);
+enum trv_dir trvReverse(enum trv_dir a);
+enum trv_dir trvAcross(enum trv_dir a);
+
+
+bool GH_intersection_same_way(struct GH_vertex_ll * a_p, struct GH_vertex_ll * a_n, 
+                              struct GH_vertex_ll * b_p, struct GH_vertex_ll * b_n,
+                              struct GH_vertex_ll * i);
+
 // iterates over all pairs of nonintersection in a polygon
 #define FOR_VERTEX_NI_PAIR(start, va, vb) \
 	va = start; \
