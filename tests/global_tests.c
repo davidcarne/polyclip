@@ -161,10 +161,158 @@ static void test_winding_bug_1()
 	//polyDump(f2);
 }
 
+/*
+ *  Hard testcase such as the one found in the Kim-Kim paper.
+ */
+static void setup_KK_example(struct GH_vertex_ll ** c, struct GH_vertex_ll ** s)
+{
+    struct GH_vertex_ll * p;
+	*c = GH_polyPoint(NULL, 0, 0);
+	p = GH_polyPoint(*c,    6, 0);
+	p = GH_polyPoint(p,      6, 7);
+	p = GH_polyPoint(p,      0, 4);
+	
+	*s = GH_polyPoint(NULL,   2, 0);
+	p = GH_polyPoint(*s,      2, 1);
+	p = GH_polyPoint(p,      0, 2);
+	p = GH_polyPoint(p,      2, 3);
+	p = GH_polyPoint(p,      2, 5);
+    p = GH_polyPoint(p,      4, 6);
+	p = GH_polyPoint(p,      2, 7);
+	p = GH_polyPoint(p,      6, 7);
+	p = GH_polyPoint(p,      9, 2);
+	p = GH_polyPoint(p,      5, 2);
+	p = GH_polyPoint(p,      5, -2);
+	p = GH_polyPoint(p,      4, 0);
+}
+
+static void test_KK_example()
+{
+    struct GH_vertex_ll * c; // clip polygon
+    struct GH_vertex_ll * s; // subject polygon
+    
+
+    setup_KK_example(&c, &s);
+    
+	struct GH_polygon_ll * res = GH_polygon_boolean(s, c, GH_op_intersect);
+	LT_REQUIRE(res);
+	LT_REQUIRE(nPolys(res) == 1);
+	
+	struct GH_vertex_ll * rpoly = res->firstv;
+	LT_REQUIRE(polySize(rpoly) == 11);
+	
+    
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  0), 2, 0));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  1), 4, 0));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  2), 5, 0));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  3), 5, 2));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  4), 6, 2));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  5), 6, 7));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  6), 4, 6));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  7), 2, 5));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  8), 2, 3));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  9), 0, 2));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly, 10), 2, 1));
+}
+
+static void test_KK_example_R2()
+{
+    
+    struct GH_vertex_ll * c; // clip polygon
+    struct GH_vertex_ll * s; // subject polygon
+    
+    setup_KK_example(&c, &s);
+    s = reversePoly(s);
+    
+	struct GH_polygon_ll * res = GH_polygon_boolean(s, c, GH_op_intersect);
+	LT_REQUIRE(res);
+	LT_REQUIRE(nPolys(res) == 1);
+	
+	struct GH_vertex_ll * rpoly = res->firstv;
+	LT_REQUIRE(polySize(rpoly) == 11);
+	    
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  0), 5, 0));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  1), 4, 0));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  2), 2, 0));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  3), 2, 1));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  4), 0, 2));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  5), 2, 3));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  6), 2, 5));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  7), 4, 6));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  8), 6, 7));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  9), 6, 2));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  10), 5, 2));
+}
+
+static void test_KK_example_R3()
+{
+    
+    struct GH_vertex_ll * c; // clip polygon
+    struct GH_vertex_ll * s; // subject polygon
+    
+    setup_KK_example(&c, &s);
+    c = reversePoly(c);
+    
+	struct GH_polygon_ll * res = GH_polygon_boolean(s, c, GH_op_intersect);
+	LT_REQUIRE(res);
+	LT_REQUIRE(nPolys(res) == 1);
+	
+	struct GH_vertex_ll * rpoly = res->firstv;
+	LT_REQUIRE(polySize(rpoly) == 11);
+    
+    
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  0), 2, 0));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  1), 4, 0));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  2), 5, 0));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  3), 5, 2));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  4), 6, 2));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  5), 6, 7));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  6), 4, 6));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  7), 2, 5));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  8), 2, 3));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  9), 0, 2));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly, 10), 2, 1));
+}
+
+static void test_KK_example_R4()
+{
+    
+    
+    struct GH_vertex_ll * c; // clip polygon
+    struct GH_vertex_ll * s; // subject polygon
+    
+    setup_KK_example(&c, &s);
+    s = reversePoly(s);
+    c = reversePoly(c);
+    
+	struct GH_polygon_ll * res = GH_polygon_boolean(s, c, GH_op_intersect);
+	LT_REQUIRE(res);
+	LT_REQUIRE(nPolys(res) == 1);
+	
+	struct GH_vertex_ll * rpoly = res->firstv;
+	LT_REQUIRE(polySize(rpoly) == 11);
+    
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  0), 5, 0));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  1), 4, 0));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  2), 2, 0));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  3), 2, 1));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  4), 0, 2));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  5), 2, 3));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  6), 2, 5));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  7), 4, 6));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  8), 6, 7));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  9), 6, 2));
+	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  10), 5, 2));
+}
+
 void global_tests()
 {
 	_T(test_winding_bug_1);
 	_T(test_simple_union_1);
 	_T(test_simple_intersect_1);
 	_T(test_simple_intersect_2);
+	_T(test_KK_example);
+	_T(test_KK_example_R2);
+	_T(test_KK_example_R3);
+	_T(test_KK_example_R4);
 }

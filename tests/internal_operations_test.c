@@ -229,6 +229,14 @@ static void test_same_way_2(void)
     
 }
 
+static void test_bits_bug_1(void)
+{
+    struct GH_point a = {4,6}, b = {2,5}, c={6,7}, d={0,4};
+    int bits = GH_lineCoincideBits(&a, &b, &c, &d);
+    LT_ASSERT(bits == (A_ONCD | B_ONCD));
+    
+}
+
 void internal_ops_tests(void)
 {
 	
@@ -249,4 +257,5 @@ void internal_ops_tests(void)
 	_T(testPointInPolygonBug7);
     _T(test_same_way_1);
     _T(test_same_way_2);
+    _T(test_bits_bug_1);
 }

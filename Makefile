@@ -15,7 +15,7 @@ test: build/test_runner
 	./build/test_runner $(TESTNAME)
 
 dtest: build/test_runner
-	gdb ./build/test_runner --command=gdbsetup $(TESTNAME)
+	gdb  --command=gdbsetup --args ./build/test_runner $(TESTNAME)
 	
 CFLAGS=-Isrc/ -DINT_ASSERT -ggdb3
 

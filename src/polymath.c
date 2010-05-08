@@ -38,7 +38,7 @@
 #define _FC(a,b) (fabs((a) - (b)) < COMPARE_EPSILON)
 #define POINT_COMPARE(a, b) (_FC((a)->x, (b)->x) && _FC((a)->y, (b)->y))
 #define RECT_BETWEEN(a, c,d)	((a->x > c->x && a->x < d->x || a->x > d->x && a->x < c->x) || \
-(a->y > c->y && a->y < d->y || a->y > d->x && a->y < c->y))
+(a->y > c->y && a->y < d->y || a->y > d->y && a->y < c->y))
 
 struct GH_vertex_ll * __find_non_intersect(struct GH_vertex_ll * v)
 {
