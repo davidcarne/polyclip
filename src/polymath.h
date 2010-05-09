@@ -34,6 +34,7 @@ enum GH_op_t {
 
 struct GH_polygon_ll {
 	struct GH_polygon_ll * next;
+    
 	struct GH_vertex_ll * firstv;
 };
 

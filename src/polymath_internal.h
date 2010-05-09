@@ -22,6 +22,13 @@
 #ifndef _POLYMATH_INTERNAL_H_
 #define _POLYMATH_INTERNAL_H_
 
+
+/*
+ * You should not use this file directly from your own code. It exists purely to allow 
+ * the polymath internal test code to check subfunctions of the clipper.
+ * 
+ * Anything in here should be considered unstable, and likely broken.
+ */
 #include <stdbool.h>
 
 struct GH_point {
