@@ -31,7 +31,7 @@
  */
 #include <stdbool.h>
 
-struct GH_point {
+struct PC_point {
 	double x, y;
 };
 
@@ -50,19 +50,19 @@ enum edge_status_t {
 	edge_out
 };
 
-struct GH_vertex_ll {
-	struct GH_point	c; //coords
+struct PC_vertex_ll {
+	struct PC_point	c; //coords
 	
 	// Next + prev have special meaning when its an intersection queued
 	//  next is next in insertion list, prev is the line segment its on
-	struct GH_vertex_ll * next, * prev;
+	struct PC_vertex_ll * next, * prev;
 
 	bool	intersect;
-	struct GH_vertex_ll * neighbor;
+	struct PC_vertex_ll * neighbor;
 
 	double	alpha;
 	enum flag_type_e flag;
-	struct GH_vertex_ll * couple;
+	struct PC_vertex_ll * couple;
 	bool	cross_change;
 	bool 	done;
 
@@ -88,9 +88,9 @@ enum trv_dir trvReverse(enum trv_dir a);
 enum trv_dir trvAcross(enum trv_dir a);
 
 
-bool GH_intersection_same_way(struct GH_vertex_ll * a_p, struct GH_vertex_ll * a_n, 
-                              struct GH_vertex_ll * b_p, struct GH_vertex_ll * b_n,
-                              struct GH_vertex_ll * i);
+bool PC_intersection_same_way(struct PC_vertex_ll * a_p, struct PC_vertex_ll * a_n, 
+                              struct PC_vertex_ll * b_p, struct PC_vertex_ll * b_n,
+                              struct PC_vertex_ll * i);
 
 // iterates over all pairs of nonintersection in a polygon
 #define FOR_VERTEX_NI_PAIR(start, va, vb) \
@@ -158,40 +158,36 @@ bool GH_intersection_same_way(struct GH_vertex_ll * a_p, struct GH_vertex_ll * a
 
 #define VERTEX_POINT(v) (&((v)->c))
 
-struct GH_vertex_ll * __find_non_intersect(struct GH_vertex_ll * v); 
-struct GH_vertex_ll * __find_intersect(struct GH_vertex_ll * v); 
-struct GH_vertex_ll * __find_last(struct GH_vertex_ll * v); 
-struct GH_vertex_ll * __find_intersect_notdone(struct GH_vertex_ll * v);
 
-struct GH_vertex_ll * alloc_GH_vertex_ll();
-struct GH_vertex_ll * GH_createIVertex(struct GH_point * A, struct GH_point * B, double a); 
-void GH_linkVerticies(struct GH_vertex_ll * a, struct GH_vertex_ll * b); 
-void GH_insertAfter(struct GH_vertex_ll * ip, struct GH_vertex_ll * ti); 
-void GH_unlink(struct GH_vertex_ll * v); 
-bool GH_polyHasIntersectingNotDone(struct GH_vertex_ll * v); 
-void GH_sortedInsert(struct GH_vertex_ll * P1, struct GH_vertex_ll * P2, struct GH_vertex_ll * I); 
-double GH_calc_WEC(struct GH_point * A, struct GH_point * B, struct GH_point * C, struct GH_point * D); 
-int outcode(struct GH_point * p, double L, double R, double B, double T); 
-bool GH_pointCompare(struct GH_point * a, struct GH_point * b); 
-enum intertype_e GH_intersect(struct GH_point * P1, struct GH_point * P2, struct GH_point * Q1, struct GH_point * Q2,
+struct PC_vertex_ll * alloc_PC_vertex_ll();
+struct PC_vertex_ll * PC_createIVertex(struct PC_point * A, struct PC_point * B, double a); 
+void PC_linkVerticies(struct PC_vertex_ll * a, struct PC_vertex_ll * b); 
+void PC_insertAfter(struct PC_vertex_ll * ip, struct PC_vertex_ll * ti); 
+void PC_unlink(struct PC_vertex_ll * v); 
+bool PC_polyHasIntersectingNotDone(struct PC_vertex_ll * v); 
+void PC_sortedInsert(struct PC_vertex_ll * P1, struct PC_vertex_ll * P2, struct PC_vertex_ll * I); 
+double PC_calc_WEC(struct PC_point * A, struct PC_point * B, struct PC_point * C, struct PC_point * D); 
+int outcode(struct PC_point * p, double L, double R, double B, double T); 
+bool PC_pointCompare(struct PC_point * a, struct PC_point * b); 
+enum intertype_e PC_intersect(struct PC_point * P1, struct PC_point * P2, struct PC_point * Q1, struct PC_point * Q2,
 	double * alphaP, double * alphaQ); 
 	
 
-bool GH_pointInPoly(struct GH_vertex_ll * poly, struct GH_point * point); 
-double GH_calcAlpha(struct GH_point * point, struct GH_point * start, struct GH_point * finish); 
-int GH_polySize(struct GH_vertex_ll * a); 
+bool PC_pointInPoly(struct PC_vertex_ll * poly, struct PC_point * point); 
+double PC_calcAlpha(struct PC_point * point, struct PC_point * start, struct PC_point * finish); 
+int PC_polySize(struct PC_vertex_ll * a); 
 
-bool GH_phase_one(struct GH_vertex_ll * subject, struct GH_vertex_ll * clip); 
-void GH_phase_two(struct GH_vertex_ll * p1, struct GH_vertex_ll * p2, enum GH_op_t op);
-struct GH_vertex_ll * GH_phase_three(struct GH_vertex_ll * p1, struct GH_vertex_ll * p2);
-void GHKK_phase_3_prep(struct GH_vertex_ll * p1, struct GH_vertex_ll * p2);
-bool GHKK_phase_3_fp(struct GH_vertex_ll * p1, struct GH_vertex_ll * p2, enum GH_op_t op, struct GH_vertex_ll ** outpoly);
+bool PC_phase_one(struct PC_vertex_ll * subject, struct PC_vertex_ll * clip); 
+void PC_phase_two(struct PC_vertex_ll * p1, struct PC_vertex_ll * p2, enum PC_op_t op);
+struct PC_vertex_ll * PC_phase_three(struct PC_vertex_ll * p1, struct PC_vertex_ll * p2);
+void GHKK_phase_3_prep(struct PC_vertex_ll * p1, struct PC_vertex_ll * p2);
+bool GHKK_phase_3_fp(struct PC_vertex_ll * p1, struct PC_vertex_ll * p2, enum PC_op_t op, struct PC_vertex_ll ** outpoly);
 
 /*
  * This function does not indicate bits where A or B = C or D, only when there is an intersection point
  * that needs to be created
  */
-int GH_lineCoincideBits(struct GH_point * a, struct GH_point * b, struct GH_point * c, struct GH_point * d);
+int PC_lineCoincideBits(struct PC_point * a, struct PC_point * b, struct PC_point * c, struct PC_point * d);
 
 #define OC_L (1 << 3)
 #define OC_R (1 << 2)

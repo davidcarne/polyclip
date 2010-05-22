@@ -7,7 +7,7 @@ TEST_SRCS=tests/main.c  tests/libtest.c \
 			tests/internal_operations_test.c \
 			tests/basic_polygon_tests.c tests/support.c \
 			tests/phase_2_tests.c tests/phase_3_tests.c \
-			tests/global_tests.c
+			tests/global_tests.c $(SRCS)
 			
 TEST_OBJS=$(patsubst %.c,build/%_t.o, $(TEST_SRCS) )
 
@@ -17,17 +17,24 @@ test: build/test_runner
 dtest: build/test_runner
 	gdb  --command=gdbsetup --args ./build/test_runner $(TESTNAME)
 	
-CFLAGS=-Isrc/ -DINT_ASSERT -ggdb3
+CFLAGS=-Isrc/ -ggdb3
+CFLAGS_TEST:= -DINT_ASSERT=1 $(CFLAGS)
 
-build/test_runner: $(TEST_OBJS) $(OBJS)
+lib: build/libPolyClip.dylib
+
+build/test_runner: $(TEST_OBJS)
 	@echo "LD	$@"
 	@mkdir -p $(@D)
 	@gcc $(LDFLAGS) -o $@ $^
+
+build/libPolyClip.dylib: $(OBJS)
+	@echo "LD   $@"
+	@gcc -dynamiclib -o $@ -dylib $^
 	
 build/%_t.o: %.c src/polymath.h src/polymath_internal.h
-	@echo "CC	$@"
+	@echo "CC[t]	$@"
 	@mkdir -p $(@D)
-	@gcc $(CFLAGS) -c -o $@ $<
+	@gcc $(CFLAGS_TEST) -c -o $@ $<
 
 build/%.o: %.c src/polymath.h src/polymath_internal.h
 	@echo "CC	$@"

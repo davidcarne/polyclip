@@ -34,7 +34,7 @@ const char * td_dec(enum trv_dir e)
 		default: return "BADDIR!!!!";
 	}
 }
-void polyDump(struct GH_vertex_ll * p)
+void polyDump(struct PC_vertex_ll * p)
 {
 	int c = 0;
 	do {
@@ -44,7 +44,7 @@ void polyDump(struct GH_vertex_ll * p)
 }
 
 
-struct GH_vertex_ll * polyIndex(struct GH_vertex_ll * p, int c)
+struct PC_vertex_ll * polyIndex(struct PC_vertex_ll * p, int c)
 {
 	while (c-- && (p = p->next));
 	if (!p)
@@ -53,7 +53,7 @@ struct GH_vertex_ll * polyIndex(struct GH_vertex_ll * p, int c)
 }
 
 
-int polySize(struct GH_vertex_ll * p)
+int polySize(struct PC_vertex_ll * p)
 {
 	int size = 1;
 	while ((p = p->next))
@@ -62,22 +62,22 @@ int polySize(struct GH_vertex_ll * p)
 	return size;
 }
 
-struct GH_vertex_ll * createRectCW(double cx, double cy, double w, double h)
+struct PC_vertex_ll * createRectCW(double cx, double cy, double w, double h)
 {
-	struct GH_vertex_ll * r = NULL, * p;
-	r = GH_polyPoint(NULL, cx - w/2, cy - h/2);
-	p = GH_polyPoint(r,    cx - w/2, cy + h/2);
-	p = GH_polyPoint(p,    cx + w/2, cy + h/2);
-	p = GH_polyPoint(p,    cx + w/2, cy - h/2);
+	struct PC_vertex_ll * r = NULL, * p;
+	r = PC_polyPoint(NULL, cx - w/2, cy - h/2);
+	p = PC_polyPoint(r,    cx - w/2, cy + h/2);
+	p = PC_polyPoint(p,    cx + w/2, cy + h/2);
+	p = PC_polyPoint(p,    cx + w/2, cy - h/2);
 	return r;
 }
 
-struct GH_vertex_ll * createRect(double cx, double cy, double w, double h)
+struct PC_vertex_ll * createRect(double cx, double cy, double w, double h)
 {
-	struct GH_vertex_ll * r = NULL, * p;
-	r = GH_polyPoint(NULL, cx - w/2, cy - h/2);
-	p = GH_polyPoint(r, cx + w/2, cy - h/2);
-	p = GH_polyPoint(p, cx + w/2, cy + h/2);
-	p = GH_polyPoint(p, cx - w/2, cy + h/2);
+	struct PC_vertex_ll * r = NULL, * p;
+	r = PC_polyPoint(NULL, cx - w/2, cy - h/2);
+	p = PC_polyPoint(r, cx + w/2, cy - h/2);
+	p = PC_polyPoint(p, cx + w/2, cy + h/2);
+	p = PC_polyPoint(p, cx - w/2, cy + h/2);
 	return r;
 }

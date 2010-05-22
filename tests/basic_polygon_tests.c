@@ -9,13 +9,13 @@
 static void p1_test_overlapping_rects_1(void)
 {
 	// Square centered on 2,2
-	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
+	struct PC_vertex_ll * r1 = createRect(2,2,4,4);
 	
 	// Square centered on 4,4
-	struct GH_vertex_ll * r2 = createRect(4,4,4,4);
+	struct PC_vertex_ll * r2 = createRect(4,4,4,4);
 	
 	
-	bool result = GH_phase_one(r1, r2); 
+	bool result = PC_phase_one(r1, r2); 
 	LT_REQUIRE(result);
 	
 	LT_REQUIRE(polySize(r1) == 6);
@@ -60,19 +60,23 @@ static void p1_test_overlapping_rects_1(void)
 	 *    R1_0-------------R1_1
 	 *
 	 */
+    
+    
+    PC_free_verticies(r1);
+    PC_free_verticies(r2);
 }
 
 
 static void p1_test_overlapping_rects_2(void)
 {
 	// Square centered on 2,2
-	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
+	struct PC_vertex_ll * r1 = createRect(2,2,4,4);
 	
 	// Square centered on 4,4
-	struct GH_vertex_ll * r2 = createRectCW(4,4,4,4);
+	struct PC_vertex_ll * r2 = createRectCW(4,4,4,4);
 	
 	
-	bool result = GH_phase_one(r1, r2); 
+	bool result = PC_phase_one(r1, r2); 
 	LT_REQUIRE(result);
 	
 	LT_REQUIRE(polySize(r1) == 6);
@@ -117,17 +121,20 @@ static void p1_test_overlapping_rects_2(void)
 	 *    R1_0-------------R1_1
 	 *
 	 */
+    
+    PC_free_verticies(r1);
+    PC_free_verticies(r2);
 }
 
 static void p1_test_adjacent_rects_1(void)
 {
 	// Square centered on 2,2
-	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
+	struct PC_vertex_ll * r1 = createRect(2,2,4,4);
 	
 	// Square centered on 2,4
-	struct GH_vertex_ll * r2 = createRect(2,6,4,4);
+	struct PC_vertex_ll * r2 = createRect(2,6,4,4);
 	
-	bool result = GH_phase_one(r1, r2); 
+	bool result = PC_phase_one(r1, r2); 
 	LT_REQUIRE(result);
 	
 	LT_REQUIRE(polySize(r1) == 4);
@@ -153,17 +160,20 @@ static void p1_test_adjacent_rects_1(void)
 	
 	LT_ASSERT (_I(r1,3)->neighbor == _I(r2,0));
 	LT_ASSERT (_I(r2,0)->neighbor == _I(r1,3));
+    
+    PC_free_verticies(r1);
+    PC_free_verticies(r2);
 }
 
 static void p1_test_adjacent_rects_2(void)
 {
 	// Square centered on 2,2
-	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
+	struct PC_vertex_ll * r1 = createRect(2,2,4,4);
 	
 	// Square centered on 2,4
-	struct GH_vertex_ll * r2 = createRectCW(2,6,4,4);
+	struct PC_vertex_ll * r2 = createRectCW(2,6,4,4);
 	
-	bool result = GH_phase_one(r1, r2); 
+	bool result = PC_phase_one(r1, r2); 
 	LT_REQUIRE(result);
 	
 	LT_REQUIRE(polySize(r1) == 4);
@@ -189,17 +199,21 @@ static void p1_test_adjacent_rects_2(void)
 	
 	LT_ASSERT (_I(r1,2)->neighbor == _I(r2,3));
 	LT_ASSERT (_I(r2,3)->neighbor == _I(r1,2));
+    
+    
+    PC_free_verticies(r1);
+    PC_free_verticies(r2);
 }
 
 static void p1_test_overlapborder_rects_1(void)
 {
 	// Square centered on 2,2
-	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
+	struct PC_vertex_ll * r1 = createRect(2,2,4,4);
 	
 	// Square centered on 3,4
-	struct GH_vertex_ll * r2 = createRect(3,6,4,4);
+	struct PC_vertex_ll * r2 = createRect(3,6,4,4);
 	
-	bool result = GH_phase_one(r1, r2); 
+	bool result = PC_phase_one(r1, r2); 
 	LT_REQUIRE(result);
 	
 	
@@ -227,17 +241,21 @@ static void p1_test_overlapborder_rects_1(void)
 	
 	LT_ASSERT (_I(r1,3)->neighbor == _I(r2,0));
 	LT_ASSERT (_I(r2,0)->neighbor == _I(r1,3));
+    
+    
+    PC_free_verticies(r1);
+    PC_free_verticies(r2);
 }
 
 static void p1_test_overlapborder_rects_2(void)
 {
 	// Square centered on 2,2
-	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
+	struct PC_vertex_ll * r1 = createRect(2,2,4,4);
 	
 	// Square centered on 3,4
-	struct GH_vertex_ll * r2 = createRectCW(3,6,4,4);
+	struct PC_vertex_ll * r2 = createRectCW(3,6,4,4);
 	
-	bool result = GH_phase_one(r1, r2); 
+	bool result = PC_phase_one(r1, r2); 
 	LT_REQUIRE(result);
 	
 	LT_REQUIRE(polySize(r1) == 5);
@@ -264,17 +282,21 @@ static void p1_test_overlapborder_rects_2(void)
 	
 	LT_ASSERT (_I(r1,2)->neighbor == _I(r2,4));
 	LT_ASSERT (_I(r2,4)->neighbor == _I(r1,2));
+    
+    
+    PC_free_verticies(r1);
+    PC_free_verticies(r2);
 }
 
 static void p1_test_touching_rects_1(void)
 {
 	// Square centered on 2,2
-	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
+	struct PC_vertex_ll * r1 = createRect(2,2,4,4);
 	
 	// Square centered on 2,4
-	struct GH_vertex_ll * r2 = createRect(6,6,4,4);
+	struct PC_vertex_ll * r2 = createRect(6,6,4,4);
 	
-	bool result = GH_phase_one(r1, r2); 
+	bool result = PC_phase_one(r1, r2); 
 	LT_REQUIRE(result);
 	
 	LT_REQUIRE(polySize(r1) == 4);
@@ -282,18 +304,22 @@ static void p1_test_touching_rects_1(void)
 	
 	LT_ASSERT (_I(r1,2)->neighbor == _I(r2,0));
 	LT_ASSERT (_I(r2,0)->neighbor == _I(r1,2));
+    
+    
+    PC_free_verticies(r1);
+    PC_free_verticies(r2);
 }
 
 static void p1_test_touching_rects_2(void)
 {
 	
 	// Square centered on 2,2
-	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
+	struct PC_vertex_ll * r1 = createRect(2,2,4,4);
 	
 	// Square centered on 2,4
-	struct GH_vertex_ll * r2 = createRectCW(6,6,4,4);
+	struct PC_vertex_ll * r2 = createRectCW(6,6,4,4);
 	
-	bool result = GH_phase_one(r1, r2); 
+	bool result = PC_phase_one(r1, r2); 
 	LT_REQUIRE(result);
 	
 	LT_REQUIRE(polySize(r1) == 4);
@@ -301,6 +327,10 @@ static void p1_test_touching_rects_2(void)
 	
 	LT_ASSERT (_I(r1,2)->neighbor == _I(r2,0));
 	LT_ASSERT (_I(r2,0)->neighbor == _I(r1,2));
+    
+    
+    PC_free_verticies(r1);
+    PC_free_verticies(r2);
 }
 
 

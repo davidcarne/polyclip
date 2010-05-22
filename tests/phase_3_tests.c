@@ -8,15 +8,15 @@
 static void p3_test_overlapping_rects_1(void)
 {
 	// Square centered on 2,2
-	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
+	struct PC_vertex_ll * r1 = createRect(2,2,4,4);
 	
 	// Square centered on 4,4
-	struct GH_vertex_ll * r2 = createRect(4,4,4,4);
+	struct PC_vertex_ll * r2 = createRect(4,4,4,4);
 	
 	
-	bool result = GH_phase_one(r1, r2); 
-	enum GH_op_t op = GH_op_union;
-	GH_phase_two(r1, r2, op);
+	bool result = PC_phase_one(r1, r2); 
+	enum PC_op_t op = PC_op_union;
+	PC_phase_two(r1, r2, op);
 	
 	// Should be:
 	/*
@@ -36,13 +36,13 @@ static void p3_test_overlapping_rects_1(void)
 	 */
 	
 	
-	struct GH_vertex_ll * o;
+	struct PC_vertex_ll * o;
 	
 	//polyDump(r1);
 	//polyDump(r2);
-	GHKK_phase_3_prep(r1, r2);
+	PC_phase_3_prep(r1, r2);
 
-	bool ok = GHKK_phase_3_fp(r1, r2, GH_op_union, &o);
+	bool ok = PC_phase_3_fp(r1, r2, PC_op_union, &o);
 	LT_ASSERT(ok);
 	//polyDump(o);
 	LT_REQUIRE(polySize(o) == 8);
@@ -56,22 +56,29 @@ static void p3_test_overlapping_rects_1(void)
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 6), 0, 0));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 7), 4, 0));
 	
-	ok = GHKK_phase_3_fp(r1, r2, GH_op_union, &o);
+    
+    PC_free_verticies(o);
+    
+	ok = PC_phase_3_fp(r1, r2, PC_op_union, &o);
 	LT_ASSERT(!ok);
+    
+    
+    PC_free_verticies(r1);
+    PC_free_verticies(r2);
 }
 
 static void p3_test_overlapping_rects_2(void)
 {
 	// Square centered on 2,2
-	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
+	struct PC_vertex_ll * r1 = createRect(2,2,4,4);
 	
 	// Square centered on 4,4
-	struct GH_vertex_ll * r2 = createRectCW(4,4,4,4);
+	struct PC_vertex_ll * r2 = createRectCW(4,4,4,4);
 	
 	
-	bool result = GH_phase_one(r1, r2); 
-	enum GH_op_t op = GH_op_union;
-	GH_phase_two(r1, r2, op);
+	bool result = PC_phase_one(r1, r2); 
+	enum PC_op_t op = PC_op_union;
+	PC_phase_two(r1, r2, op);
 	
 	// Should be:
 	/*
@@ -90,11 +97,11 @@ static void p3_test_overlapping_rects_2(void)
 	 *
 	 */
 	
-	struct GH_vertex_ll * o;
+	struct PC_vertex_ll * o;
 	
-	GHKK_phase_3_prep(r1, r2);
+	PC_phase_3_prep(r1, r2);
 	
-	bool ok = GHKK_phase_3_fp(r1, r2, GH_op_union, &o);
+	bool ok = PC_phase_3_fp(r1, r2, PC_op_union, &o);
 	LT_ASSERT(ok);
 	//polyDump(o);
 	LT_REQUIRE(polySize(o) == 8);
@@ -109,30 +116,34 @@ static void p3_test_overlapping_rects_2(void)
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 6), 0, 0));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 7), 4, 0));
 	
-	
-	ok = GHKK_phase_3_fp(r1, r2, GH_op_union, &o);
+    PC_free_verticies(o);
+
+	ok = PC_phase_3_fp(r1, r2, PC_op_union, &o);
 	LT_ASSERT(!ok);
+    
+    PC_free_verticies(r1);
+    PC_free_verticies(r2);
 }
 
 static void p3_test_adjacent_rects_1(void)
 {
 	// Square centered on 2,2
-	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
+	struct PC_vertex_ll * r1 = createRect(2,2,4,4);
 	
 	// Square centered on 2,4
-	struct GH_vertex_ll * r2 = createRect(2,6,4,4);
+	struct PC_vertex_ll * r2 = createRect(2,6,4,4);
 	
 	
-	enum GH_op_t op = GH_op_union;
-	bool result = GH_phase_one(r1, r2); 
+	enum PC_op_t op = PC_op_union;
+	bool result = PC_phase_one(r1, r2); 
 	
-	GH_phase_two(r1, r2, op);
+	PC_phase_two(r1, r2, op);
 
 	
-	GHKK_phase_3_prep(r1, r2);
-	struct GH_vertex_ll * o;
+	PC_phase_3_prep(r1, r2);
+	struct PC_vertex_ll * o;
 
-	bool ok = GHKK_phase_3_fp(r1, r2, GH_op_union, &o);
+	bool ok = PC_phase_3_fp(r1, r2, PC_op_union, &o);
 	LT_ASSERT(ok);
 	//polyDump(o);
 	LT_REQUIRE(polySize(o) == 6);
@@ -143,31 +154,37 @@ static void p3_test_adjacent_rects_1(void)
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 3), 0, 4));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 4), 0, 0));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 5), 4, 0));
-	
-	ok = GHKK_phase_3_fp(r1, r2, GH_op_union, &o);
+    
+    PC_free_verticies(o);
+
+	ok = PC_phase_3_fp(r1, r2, PC_op_union, &o);
 	LT_ASSERT(!ok);
+    
+    
+    PC_free_verticies(r1);
+    PC_free_verticies(r2);
 }
 
 
 static void p3_test_adjacent_rects_2(void)
 {
 	// Square centered on 2,2
-	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
+	struct PC_vertex_ll * r1 = createRect(2,2,4,4);
 	
 	// Square centered on 2,4
-	struct GH_vertex_ll * r2 = createRectCW(2,6,4,4);
+	struct PC_vertex_ll * r2 = createRectCW(2,6,4,4);
 	
 	
-	enum GH_op_t op = GH_op_union;
-	bool result = GH_phase_one(r1, r2); 
+	enum PC_op_t op = PC_op_union;
+	bool result = PC_phase_one(r1, r2); 
 	
-	GH_phase_two(r1, r2, op);
+	PC_phase_two(r1, r2, op);
 	
 	
-	GHKK_phase_3_prep(r1, r2);
-	struct GH_vertex_ll * o;
+	PC_phase_3_prep(r1, r2);
+	struct PC_vertex_ll * o;
 	
-	bool ok = GHKK_phase_3_fp(r1, r2, GH_op_union, &o);
+	bool ok = PC_phase_3_fp(r1, r2, PC_op_union, &o);
 	LT_ASSERT(ok);
 	//polyDump(o);
 	LT_REQUIRE(polySize(o) == 6);
@@ -178,29 +195,34 @@ static void p3_test_adjacent_rects_2(void)
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 3), 0, 4));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 4), 0, 0));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 5), 4, 0));
+    
+    PC_free_verticies(o);
 	
-	ok = GHKK_phase_3_fp(r1, r2, GH_op_union, &o);
+	ok = PC_phase_3_fp(r1, r2, PC_op_union, &o);
 	LT_ASSERT(!ok);
+    
+    PC_free_verticies(r1);
+    PC_free_verticies(r2);
 }
 
 
 static void p3_test_overlapborder_rects_1(void)
 {
 	// Square centered on 2,2
-	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
+	struct PC_vertex_ll * r1 = createRect(2,2,4,4);
 	
 	// Square centered on 3,4
-	struct GH_vertex_ll * r2 = createRect(3,6,4,4);
+	struct PC_vertex_ll * r2 = createRect(3,6,4,4);
 	
 	
-	enum GH_op_t op = GH_op_union;
-	bool result = GH_phase_one(r1, r2); 
-	GH_phase_two(r1, r2, op);
+	enum PC_op_t op = PC_op_union;
+	bool result = PC_phase_one(r1, r2); 
+	PC_phase_two(r1, r2, op);
 	
-	GHKK_phase_3_prep(r1, r2);
-	struct GH_vertex_ll * o;
+	PC_phase_3_prep(r1, r2);
+	struct PC_vertex_ll * o;
 	
-	bool ok = GHKK_phase_3_fp(r1, r2, GH_op_union, &o);
+	bool ok = PC_phase_3_fp(r1, r2, PC_op_union, &o);
 	LT_ASSERT(ok);
 	LT_REQUIRE(polySize(o) == 8);
 	
@@ -213,29 +235,34 @@ static void p3_test_overlapborder_rects_1(void)
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 5), 0, 4));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 6), 0, 0));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 7), 4, 0));
+    
+    PC_free_verticies(o);
 	
-	ok = GHKK_phase_3_fp(r1, r2, GH_op_union, &o);
+	ok = PC_phase_3_fp(r1, r2, PC_op_union, &o);
 	LT_ASSERT(!ok);
+    
+    PC_free_verticies(r1);
+    PC_free_verticies(r2);
 }
 
 
 static void p3_test_overlapborder_rects_2(void)
 {
 	// Square centered on 2,2
-	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
+	struct PC_vertex_ll * r1 = createRect(2,2,4,4);
 	
 	// Square centered on 3,4
-	struct GH_vertex_ll * r2 = createRectCW(3,6,4,4);
+	struct PC_vertex_ll * r2 = createRectCW(3,6,4,4);
 	
 	
-	enum GH_op_t op = GH_op_union;
-	bool result = GH_phase_one(r1, r2); 
-	GH_phase_two(r1, r2, op);
+	enum PC_op_t op = PC_op_union;
+	bool result = PC_phase_one(r1, r2); 
+	PC_phase_two(r1, r2, op);
 	
-	GHKK_phase_3_prep(r1, r2);
-	struct GH_vertex_ll * o;
+	PC_phase_3_prep(r1, r2);
+	struct PC_vertex_ll * o;
 	
-	bool ok = GHKK_phase_3_fp(r1, r2, GH_op_union, &o);
+	bool ok = PC_phase_3_fp(r1, r2, PC_op_union, &o);
 	LT_ASSERT(ok);
 	LT_REQUIRE(polySize(o) == 8);
 	
@@ -248,33 +275,38 @@ static void p3_test_overlapborder_rects_2(void)
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 5), 0, 4));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 6), 0, 0));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 7), 4, 0));
+    
+    PC_free_verticies(o);
 	
-	ok = GHKK_phase_3_fp(r1, r2, GH_op_union, &o);
+	ok = PC_phase_3_fp(r1, r2, PC_op_union, &o);
 	LT_ASSERT(!ok);
+    
+    PC_free_verticies(r1);
+    PC_free_verticies(r2);
 }
 
 
 static void p3_test_onelarger(void)
 {
 	// Square centered on 2,2
-	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
+	struct PC_vertex_ll * r1 = createRect(2,2,4,4);
 	
 	// Square centered on 3,4
-	struct GH_vertex_ll * r2 = createRect(3,3,6,6);
+	struct PC_vertex_ll * r2 = createRect(3,3,6,6);
 	
-	enum GH_op_t op = GH_op_union;
-	bool result = GH_phase_one(r1, r2); 
+	enum PC_op_t op = PC_op_union;
+	bool result = PC_phase_one(r1, r2); 
 	
 	
 	LT_REQUIRE(polySize(r1) == 4); 
 	LT_REQUIRE(polySize(r2) == 6);
 	
-	GH_phase_two(r1, r2, op);
+	PC_phase_two(r1, r2, op);
 	
-	GHKK_phase_3_prep(r1, r2);
-	struct GH_vertex_ll * o;
+	PC_phase_3_prep(r1, r2);
+	struct PC_vertex_ll * o;
 	
-	bool ok = GHKK_phase_3_fp(r1, r2, GH_op_union, &o);
+	bool ok = PC_phase_3_fp(r1, r2, PC_op_union, &o);
 	LT_ASSERT(ok);
 	LT_ASSERT(polySize(o) == 6);
 	
@@ -285,32 +317,37 @@ static void p3_test_onelarger(void)
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 3), 0, 6));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 4), 0, 4));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 5), 0, 0));
+    
+    PC_free_verticies(o);
 	
-	ok = GHKK_phase_3_fp(r1, r2, GH_op_union, &o);
+	ok = PC_phase_3_fp(r1, r2, PC_op_union, &o);
 	LT_ASSERT(!ok);
+    
+    PC_free_verticies(r1);
+    PC_free_verticies(r2);
 }
 
 static void p3_test_onelarger2(void)
 {
 	// Square centered on 2,2
-	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
+	struct PC_vertex_ll * r1 = createRect(2,2,4,4);
 	
 	// Square centered on 3,4
-	struct GH_vertex_ll * r2 = createRectCW(3,3,6,6);
+	struct PC_vertex_ll * r2 = createRectCW(3,3,6,6);
 	
-	enum GH_op_t op = GH_op_union;
-	bool result = GH_phase_one(r1, r2); 
+	enum PC_op_t op = PC_op_union;
+	bool result = PC_phase_one(r1, r2); 
 	
 	
 	LT_REQUIRE(polySize(r1) == 4); 
 	LT_REQUIRE(polySize(r2) == 6);
 	
-	GH_phase_two(r1, r2, op);
+	PC_phase_two(r1, r2, op);
 	
-	GHKK_phase_3_prep(r1, r2);
-	struct GH_vertex_ll * o;
+	PC_phase_3_prep(r1, r2);
+	struct PC_vertex_ll * o;
 	
-	bool ok = GHKK_phase_3_fp(r1, r2, GH_op_union, &o);
+	bool ok = PC_phase_3_fp(r1, r2, PC_op_union, &o);
 	LT_ASSERT(ok);
 	LT_ASSERT(polySize(o) == 6);
 	
@@ -321,31 +358,36 @@ static void p3_test_onelarger2(void)
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 3), 0, 6));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 4), 0, 4));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 5), 0, 0));
+    
+    PC_free_verticies(o);
 	
-	ok = GHKK_phase_3_fp(r1, r2, GH_op_union, &o);
+	ok = PC_phase_3_fp(r1, r2, PC_op_union, &o);
 	LT_ASSERT(!ok);
+    
+    PC_free_verticies(r1);
+    PC_free_verticies(r2);
 }
 
 static void p3_test_semi1(void)
 {
 	// Square centered on 2,2
-	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
+	struct PC_vertex_ll * r1 = createRect(2,2,4,4);
 	
 	// Square centered on 3,4
-	struct GH_vertex_ll * r2 = createRect(4,3,2,2);
+	struct PC_vertex_ll * r2 = createRect(4,3,2,2);
 	
-	enum GH_op_t op = GH_op_union;
-	bool result = GH_phase_one(r1, r2); 
+	enum PC_op_t op = PC_op_union;
+	bool result = PC_phase_one(r1, r2); 
 	
 	LT_REQUIRE(polySize(r1) == 6); 
 	LT_REQUIRE(polySize(r2) == 6);
 	
-	GH_phase_two(r1, r2, op);
+	PC_phase_two(r1, r2, op);
 	
-	GHKK_phase_3_prep(r1, r2);
-	struct GH_vertex_ll * o;
+	PC_phase_3_prep(r1, r2);
+	struct PC_vertex_ll * o;
 	
-	bool ok = GHKK_phase_3_fp(r1, r2, GH_op_union, &o);
+	bool ok = PC_phase_3_fp(r1, r2, PC_op_union, &o);
 	LT_ASSERT(ok);
 	LT_ASSERT(polySize(o) == 8);
 	
@@ -358,32 +400,37 @@ static void p3_test_semi1(void)
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 5), 0, 4));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 6), 0, 0));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 7), 4, 0));
+    
+    PC_free_verticies(o);
 	
-	ok = GHKK_phase_3_fp(r1, r2, GH_op_union, &o);
+	ok = PC_phase_3_fp(r1, r2, PC_op_union, &o);
 	LT_ASSERT(!ok);
+    
+    PC_free_verticies(r1);
+    PC_free_verticies(r2);
 }
 
 static void p3_test_semi2(void)
 {
 	// Square centered on 2,2
-	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
+	struct PC_vertex_ll * r1 = createRect(2,2,4,4);
 	
 	// Square centered on 3,4
-	struct GH_vertex_ll * r2 = createRectCW(4,3,2,2);
+	struct PC_vertex_ll * r2 = createRectCW(4,3,2,2);
 	
 	
-	enum GH_op_t op = GH_op_union;
-	bool result = GH_phase_one(r1, r2); 
+	enum PC_op_t op = PC_op_union;
+	bool result = PC_phase_one(r1, r2); 
 	
 	LT_REQUIRE(polySize(r1) == 6); 
 	LT_REQUIRE(polySize(r2) == 6);
 	
-	GH_phase_two(r1, r2, op);
+	PC_phase_two(r1, r2, op);
 	
-	GHKK_phase_3_prep(r1, r2);
-	struct GH_vertex_ll * o;
+	PC_phase_3_prep(r1, r2);
+	struct PC_vertex_ll * o;
 	
-	bool ok = GHKK_phase_3_fp(r1, r2, GH_op_union, &o);
+	bool ok = PC_phase_3_fp(r1, r2, PC_op_union, &o);
 	LT_ASSERT(ok);
 	LT_ASSERT(polySize(o) == 8);
 	
@@ -396,33 +443,38 @@ static void p3_test_semi2(void)
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 5), 0, 4));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 6), 0, 0));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 7), 4, 0));
+    
+    PC_free_verticies(o);
 	
-	ok = GHKK_phase_3_fp(r1, r2, GH_op_union, &o);
+	ok = PC_phase_3_fp(r1, r2, PC_op_union, &o);
 	LT_ASSERT(!ok);
+    
+    PC_free_verticies(r1);
+    PC_free_verticies(r2);
 }
 
 static void p3_test_semi3(void)
 {
-	struct GH_vertex_ll * r1 = createRectCW(2,2,4,4);
-	struct GH_vertex_ll * r2 = createRect(4,3,2,2);
+	struct PC_vertex_ll * r1 = createRectCW(2,2,4,4);
+	struct PC_vertex_ll * r2 = createRect(4,3,2,2);
 	
 	
-	enum GH_op_t op = GH_op_union;
-	bool result = GH_phase_one(r1, r2); 
+	enum PC_op_t op = PC_op_union;
+	bool result = PC_phase_one(r1, r2); 
 	
 	LT_REQUIRE(polySize(r1) == 6); 
 	LT_REQUIRE(polySize(r2) == 6);
 	
-	GH_phase_two(r1, r2, op);
+	PC_phase_two(r1, r2, op);
 	
 	
 	//polyDump(r1);
 	//polyDump(r2);
 	
-	GHKK_phase_3_prep(r1, r2);
-	struct GH_vertex_ll * o;
+	PC_phase_3_prep(r1, r2);
+	struct PC_vertex_ll * o;
 	
-	bool ok = GHKK_phase_3_fp(r1, r2, GH_op_union, &o);
+	bool ok = PC_phase_3_fp(r1, r2, PC_op_union, &o);
 	
 	//polyDump(o);
 	
@@ -439,30 +491,36 @@ static void p3_test_semi3(void)
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 5), 0, 0));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 6), 0, 4));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 7), 3, 4));
+    
+    PC_free_verticies(o);
 	
-	ok = GHKK_phase_3_fp(r1, r2, GH_op_union, &o);
+	ok = PC_phase_3_fp(r1, r2, PC_op_union, &o);
 	LT_ASSERT(!ok);
+    
+    PC_free_verticies(r1);
+    PC_free_verticies(r2);
+    
 }
 
 static void p3_test_semi4(void)
 {
 	// Square centered on 2,2
-	struct GH_vertex_ll * r1 = createRectCW(2,2,4,4);
+	struct PC_vertex_ll * r1 = createRectCW(2,2,4,4);
 	
 	// Square centered on 3,4
-	struct GH_vertex_ll * r2 = createRectCW(4,3,2,2);
-		enum GH_op_t op = GH_op_union;
-	bool result = GH_phase_one(r1, r2); 
+	struct PC_vertex_ll * r2 = createRectCW(4,3,2,2);
+		enum PC_op_t op = PC_op_union;
+	bool result = PC_phase_one(r1, r2); 
 	
 	LT_REQUIRE(polySize(r1) == 6); 
 	LT_REQUIRE(polySize(r2) == 6);
 	
-	GH_phase_two(r1, r2, op);
+	PC_phase_two(r1, r2, op);
 	
-	GHKK_phase_3_prep(r1, r2);
-	struct GH_vertex_ll * o;
+	PC_phase_3_prep(r1, r2);
+	struct PC_vertex_ll * o;
 	
-	bool ok = GHKK_phase_3_fp(r1, r2, GH_op_union, &o);
+	bool ok = PC_phase_3_fp(r1, r2, PC_op_union, &o);
 	LT_ASSERT(ok);
 	LT_ASSERT(polySize(o) == 8);
 	
@@ -477,38 +535,48 @@ static void p3_test_semi4(void)
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 5), 0, 0));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 6), 0, 4));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 7), 3, 4));
+    
+    PC_free_verticies(o);
 	
-	ok = GHKK_phase_3_fp(r1, r2, GH_op_union, &o);
+	ok = PC_phase_3_fp(r1, r2, PC_op_union, &o);
 	LT_ASSERT(!ok);
+    
+    PC_free_verticies(r1);
+    PC_free_verticies(r2);
 }
 
 static void p3_tri_inside(void)
 {
-	struct GH_vertex_ll * tri = NULL, * p;
-	tri = GH_polyPoint(NULL, 1, 2);
-	p = GH_polyPoint(tri,  3, 2);
-	p = GH_polyPoint(p,    2, 4);
+	struct PC_vertex_ll * tri = NULL, * p;
+	tri = PC_polyPoint(NULL, 1, 2);
+	p = PC_polyPoint(tri,  3, 2);
+	p = PC_polyPoint(p,    2, 4);
 	
-	struct GH_vertex_ll * r = createRect(2,2,4,4);
+	struct PC_vertex_ll * r = createRect(2,2,4,4);
 	
-	bool result = GH_phase_one(r, tri); 
+	bool result = PC_phase_one(r, tri); 
 	
 	LT_REQUIRE(polySize(r) == 5); 
 	LT_REQUIRE(polySize(tri) == 3);
 	
-	enum GH_op_t op = GH_op_union;
-	GH_phase_two(r, tri, op);
+	enum PC_op_t op = PC_op_union;
+	PC_phase_two(r, tri, op);
 	
-	GHKK_phase_3_prep(r, tri);
-	struct GH_vertex_ll * o;
+	PC_phase_3_prep(r, tri);
+	struct PC_vertex_ll * o;
 	
-	bool ok = GHKK_phase_3_fp(r, tri, GH_op_union, &o);
+	bool ok = PC_phase_3_fp(r, tri, PC_op_union, &o);
 	LT_ASSERT(ok);
 	
 	//polyDump(o);
+    
+    PC_free_verticies(o);
 	
-	ok = GHKK_phase_3_fp(r, tri, GH_op_union, &o);
+	ok = PC_phase_3_fp(r, tri, PC_op_union, &o);
 	LT_ASSERT(!ok);
+    
+    PC_free_verticies(r);
+    PC_free_verticies(tri);
 }
 
 
@@ -520,32 +588,32 @@ static void p3_tri_inside(void)
 static void shape_test_1_1(void)
 {
 	
-	struct GH_vertex_ll * pokey = NULL, * p;
-	pokey = GH_polyPoint(NULL, 0, 0);
-	p = GH_polyPoint(pokey,2, 0);
-	p = GH_polyPoint(p,    2, 2);
-	p = GH_polyPoint(p,    3, 2);
-	p = GH_polyPoint(p,    2, 3);
-	p = GH_polyPoint(p,    0, 3);
+	struct PC_vertex_ll * pokey = NULL, * p;
+	pokey = PC_polyPoint(NULL, 0, 0);
+	p = PC_polyPoint(pokey,2, 0);
+	p = PC_polyPoint(p,    2, 2);
+	p = PC_polyPoint(p,    3, 2);
+	p = PC_polyPoint(p,    2, 3);
+	p = PC_polyPoint(p,    0, 3);
 	
-	struct GH_vertex_ll * r = createRect(2,2.5,2,3);
+	struct PC_vertex_ll * r = createRect(2,2.5,2,3);
 	
-	bool result = GH_phase_one(r, pokey); 
+	bool result = PC_phase_one(r, pokey); 
 	
 	
 	LT_REQUIRE(polySize(r) == 7); 
 	LT_REQUIRE(polySize(pokey) == 8);
 	
-	enum GH_op_t op = GH_op_union;
-	GH_phase_two(r, pokey, op);
+	enum PC_op_t op = PC_op_union;
+	PC_phase_two(r, pokey, op);
 	
 	//polyDump(r);
 	//polyDump(pokey);
 	
-	GHKK_phase_3_prep(r, pokey);
-	struct GH_vertex_ll * o;
+	PC_phase_3_prep(r, pokey);
+	struct PC_vertex_ll * o;
 	
-	bool ok = GHKK_phase_3_fp(pokey, r, GH_op_union, &o);
+	bool ok = PC_phase_3_fp(pokey, r, PC_op_union, &o);
 	
 	//polyDump(o);
 	
@@ -561,38 +629,44 @@ static void shape_test_1_1(void)
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 6), 0, 3));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 7), 0, 0));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 8), 2, 0));
+    
+    PC_free_verticies(o);
 	
-	ok = GHKK_phase_3_fp(pokey, r, GH_op_union, &o);
+	ok = PC_phase_3_fp(pokey, r, PC_op_union, &o);
 	LT_ASSERT(!ok);
+    
+    
+    PC_free_verticies(pokey);
+    PC_free_verticies(r);
 }
 
 static void shape_test_1_2(void)
 {
 	
-	struct GH_vertex_ll * pokey = NULL, * p;
-	pokey = GH_polyPoint(NULL, 0, 0);
-	p = GH_polyPoint(pokey,2, 0);
-	p = GH_polyPoint(p,    2, 2);
-	p = GH_polyPoint(p,    3, 2);
-	p = GH_polyPoint(p,    2, 3);
-	p = GH_polyPoint(p,    0, 3);
+	struct PC_vertex_ll * pokey = NULL, * p;
+	pokey = PC_polyPoint(NULL, 0, 0);
+	p = PC_polyPoint(pokey,2, 0);
+	p = PC_polyPoint(p,    2, 2);
+	p = PC_polyPoint(p,    3, 2);
+	p = PC_polyPoint(p,    2, 3);
+	p = PC_polyPoint(p,    0, 3);
 	
-	struct GH_vertex_ll * r = createRectCW(2,2.5,2,3);
+	struct PC_vertex_ll * r = createRectCW(2,2.5,2,3);
 	
-	bool result = GH_phase_one(r, pokey); 
+	bool result = PC_phase_one(r, pokey); 
 	
 	
 	LT_REQUIRE(polySize(r) == 7); 
 	LT_REQUIRE(polySize(pokey) == 8);
 	
-	enum GH_op_t op = GH_op_union;
-	GH_phase_two(r, pokey, op);
+	enum PC_op_t op = PC_op_union;
+	PC_phase_two(r, pokey, op);
 	
 	
-	GHKK_phase_3_prep(r, pokey);
-	struct GH_vertex_ll * o;
+	PC_phase_3_prep(r, pokey);
+	struct PC_vertex_ll * o;
 	
-	bool ok = GHKK_phase_3_fp(pokey, r, GH_op_union, &o);
+	bool ok = PC_phase_3_fp(pokey, r, PC_op_union, &o);
 	LT_ASSERT(ok);
 	
 	LT_REQUIRE(polySize(o) == 9);
@@ -605,37 +679,42 @@ static void shape_test_1_2(void)
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 6), 0, 3));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 7), 0, 0));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 8), 2, 0));
+    
+    PC_free_verticies(o);
 	
-	ok = GHKK_phase_3_fp(pokey, r, GH_op_union, &o);
+	ok = PC_phase_3_fp(pokey, r, PC_op_union, &o);
 	LT_ASSERT(!ok);
+    
+    PC_free_verticies(pokey);
+    PC_free_verticies(r);
 }
 
 static void shape_test_1_3(void)
 {
 	
-	struct GH_vertex_ll * pokey = NULL, * p;
-	pokey = GH_polyPoint(NULL, 0, 0);
-	p = GH_polyPoint(pokey,0, 3);
-	p = GH_polyPoint(p,    2, 3);
-	p = GH_polyPoint(p,    3, 2);
-	p = GH_polyPoint(p,    2, 2);
-	p = GH_polyPoint(p,    2, 0);
+	struct PC_vertex_ll * pokey = NULL, * p;
+	pokey = PC_polyPoint(NULL, 0, 0);
+	p = PC_polyPoint(pokey,0, 3);
+	p = PC_polyPoint(p,    2, 3);
+	p = PC_polyPoint(p,    3, 2);
+	p = PC_polyPoint(p,    2, 2);
+	p = PC_polyPoint(p,    2, 0);
 	
-	struct GH_vertex_ll * r = createRect(2,2.5,2,3);
+	struct PC_vertex_ll * r = createRect(2,2.5,2,3);
 	
-	bool result = GH_phase_one(r, pokey); 
+	bool result = PC_phase_one(r, pokey); 
 	
 	
 	LT_REQUIRE(polySize(r) == 7); 
 	LT_REQUIRE(polySize(pokey) == 8);
 	
-	enum GH_op_t op = GH_op_union;
-	GH_phase_two(r, pokey, op);
+	enum PC_op_t op = PC_op_union;
+	PC_phase_two(r, pokey, op);
 	
-	GHKK_phase_3_prep(r, pokey);
-	struct GH_vertex_ll * o;
+	PC_phase_3_prep(r, pokey);
+	struct PC_vertex_ll * o;
 	
-	bool ok = GHKK_phase_3_fp(pokey, r, GH_op_union, &o);
+	bool ok = PC_phase_3_fp(pokey, r, PC_op_union, &o);
 	LT_ASSERT(ok);
 	
 	LT_REQUIRE(polySize(o) == 9);
@@ -648,37 +727,42 @@ static void shape_test_1_3(void)
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 6), 2, 0));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 7), 0, 0));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 8), 0, 3));
+    
+    PC_free_verticies(o);
 	
-	ok = GHKK_phase_3_fp(pokey, r, GH_op_union, &o);
+	ok = PC_phase_3_fp(pokey, r, PC_op_union, &o);
 	LT_ASSERT(!ok);
+    
+    PC_free_verticies(pokey);
+    PC_free_verticies(r);
 }
 
 static void shape_test_1_4(void)
 {
 	
-	struct GH_vertex_ll * pokey = NULL, * p;
-	pokey = GH_polyPoint(NULL, 0, 0);
-	p = GH_polyPoint(pokey,0, 3);
-	p = GH_polyPoint(p,    2, 3);
-	p = GH_polyPoint(p,    3, 2);
-	p = GH_polyPoint(p,    2, 2);
-	p = GH_polyPoint(p,    2, 0);
+	struct PC_vertex_ll * pokey = NULL, * p;
+	pokey = PC_polyPoint(NULL, 0, 0);
+	p = PC_polyPoint(pokey,0, 3);
+	p = PC_polyPoint(p,    2, 3);
+	p = PC_polyPoint(p,    3, 2);
+	p = PC_polyPoint(p,    2, 2);
+	p = PC_polyPoint(p,    2, 0);
 	
-	struct GH_vertex_ll * r = createRectCW(2,2.5,2,3);
+	struct PC_vertex_ll * r = createRectCW(2,2.5,2,3);
 	
-	bool result = GH_phase_one(r, pokey); 
+	bool result = PC_phase_one(r, pokey); 
 	
 	
 	LT_REQUIRE(polySize(r) == 7); 
 	LT_REQUIRE(polySize(pokey) == 8);
 	
-	enum GH_op_t op = GH_op_union;
-	GH_phase_two(r, pokey, op);
+	enum PC_op_t op = PC_op_union;
+	PC_phase_two(r, pokey, op);
 	
-	GHKK_phase_3_prep(r, pokey);
-	struct GH_vertex_ll * o;
+	PC_phase_3_prep(r, pokey);
+	struct PC_vertex_ll * o;
 	
-	bool ok = GHKK_phase_3_fp(pokey, r, GH_op_union, &o);
+	bool ok = PC_phase_3_fp(pokey, r, PC_op_union, &o);
 	LT_ASSERT(ok);
 	
 	LT_REQUIRE(polySize(o) == 9);
@@ -691,9 +775,14 @@ static void shape_test_1_4(void)
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 6), 2, 0));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 7), 0, 0));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 8), 0, 3));
+    
+    PC_free_verticies(o);
 	
-	ok = GHKK_phase_3_fp(pokey, r, GH_op_union, &o);
+	ok = PC_phase_3_fp(pokey, r, PC_op_union, &o);
 	LT_ASSERT(!ok);
+    
+    PC_free_verticies(pokey);
+    PC_free_verticies(r);
 }
 
 /*
@@ -703,33 +792,33 @@ static void shape_test_1_4(void)
 static void shape_test_1_5(void)
 {
 	
-	struct GH_vertex_ll * pokey = NULL, * p;
-	pokey = GH_polyPoint(NULL, 0, 0);
-	p = GH_polyPoint(pokey,2, 0);
-	p = GH_polyPoint(p,    2, 2);
-	p = GH_polyPoint(p,    3, 2);
-	p = GH_polyPoint(p,    2, 3);
-	p = GH_polyPoint(p,    0, 3);
+	struct PC_vertex_ll * pokey = NULL, * p;
+	pokey = PC_polyPoint(NULL, 0, 0);
+	p = PC_polyPoint(pokey,2, 0);
+	p = PC_polyPoint(p,    2, 2);
+	p = PC_polyPoint(p,    3, 2);
+	p = PC_polyPoint(p,    2, 3);
+	p = PC_polyPoint(p,    0, 3);
 	
-	struct GH_vertex_ll * r = createRect(2,2.5,2,3);
+	struct PC_vertex_ll * r = createRect(2,2.5,2,3);
 	
-	bool result = GH_phase_one(r, pokey); 
+	bool result = PC_phase_one(r, pokey); 
 	
 	
 	LT_REQUIRE(polySize(r) == 7); 
 	LT_REQUIRE(polySize(pokey) == 8);
 	
-	enum GH_op_t op = GH_op_union;
-	GH_phase_two(r, pokey, op);
+	enum PC_op_t op = PC_op_union;
+	PC_phase_two(r, pokey, op);
 	
 	
 	//polyDump(r);
 	//polyDump(pokey);
 	
-	GHKK_phase_3_prep(r, pokey);
-	struct GH_vertex_ll * o;
+	PC_phase_3_prep(r, pokey);
+	struct PC_vertex_ll * o;
 	
-	bool ok = GHKK_phase_3_fp(r, pokey, GH_op_union, &o);
+	bool ok = PC_phase_3_fp(r, pokey, PC_op_union, &o);
 	LT_ASSERT(ok);
 	
 	LT_REQUIRE(polySize(o) == 9);
@@ -742,39 +831,44 @@ static void shape_test_1_5(void)
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 6), 3, 4));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 7), 3, 2));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 8), 3, 1));
+    
+    PC_free_verticies(o);
 	//polyDump(o);
 	
-	ok = GHKK_phase_3_fp(r, pokey, GH_op_union, &o);
+	ok = PC_phase_3_fp(r, pokey, PC_op_union, &o);
 	LT_ASSERT(!ok);
+    
+    PC_free_verticies(pokey);
+    PC_free_verticies(r);
 }
 
 static void shape_test_1_6(void)
 {
 	
-	struct GH_vertex_ll * pokey = NULL, * p;
-	pokey = GH_polyPoint(NULL, 0, 0);
-	p = GH_polyPoint(pokey,2, 0);
-	p = GH_polyPoint(p,    2, 2);
-	p = GH_polyPoint(p,    3, 2);
-	p = GH_polyPoint(p,    2, 3);
-	p = GH_polyPoint(p,    0, 3);
+	struct PC_vertex_ll * pokey = NULL, * p;
+	pokey = PC_polyPoint(NULL, 0, 0);
+	p = PC_polyPoint(pokey,2, 0);
+	p = PC_polyPoint(p,    2, 2);
+	p = PC_polyPoint(p,    3, 2);
+	p = PC_polyPoint(p,    2, 3);
+	p = PC_polyPoint(p,    0, 3);
 	
-	struct GH_vertex_ll * r = createRectCW(2,2.5,2,3);
+	struct PC_vertex_ll * r = createRectCW(2,2.5,2,3);
 	
-	bool result = GH_phase_one(r, pokey); 
+	bool result = PC_phase_one(r, pokey); 
 	
 	
 	LT_REQUIRE(polySize(r) == 7); 
 	LT_REQUIRE(polySize(pokey) == 8);
 	
-	enum GH_op_t op = GH_op_union;
-	GH_phase_two(r, pokey, op);
+	enum PC_op_t op = PC_op_union;
+	PC_phase_two(r, pokey, op);
 	
 	
-	GHKK_phase_3_prep(r, pokey);
-	struct GH_vertex_ll * o;
+	PC_phase_3_prep(r, pokey);
+	struct PC_vertex_ll * o;
 	
-	bool ok = GHKK_phase_3_fp(r, pokey, GH_op_union, &o);
+	bool ok = PC_phase_3_fp(r, pokey, PC_op_union, &o);
 	LT_ASSERT(ok);
 	
 	LT_REQUIRE(polySize(o) == 9);
@@ -787,37 +881,42 @@ static void shape_test_1_6(void)
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 6), 3, 2));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 7), 3, 4));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 8), 1, 4));
+    
+    PC_free_verticies(o);
 	
-	ok = GHKK_phase_3_fp(r, pokey, GH_op_union, &o);
+	ok = PC_phase_3_fp(r, pokey, PC_op_union, &o);
 	LT_ASSERT(!ok);
+    
+    PC_free_verticies(pokey);
+    PC_free_verticies(r);
 }
 
 static void shape_test_1_7(void)
 {
 	
-	struct GH_vertex_ll * pokey = NULL, * p;
-	pokey = GH_polyPoint(NULL, 0, 0);
-	p = GH_polyPoint(pokey,0, 3);
-	p = GH_polyPoint(p,    2, 3);
-	p = GH_polyPoint(p,    3, 2);
-	p = GH_polyPoint(p,    2, 2);
-	p = GH_polyPoint(p,    2, 0);
+	struct PC_vertex_ll * pokey = NULL, * p;
+	pokey = PC_polyPoint(NULL, 0, 0);
+	p = PC_polyPoint(pokey,0, 3);
+	p = PC_polyPoint(p,    2, 3);
+	p = PC_polyPoint(p,    3, 2);
+	p = PC_polyPoint(p,    2, 2);
+	p = PC_polyPoint(p,    2, 0);
 	
-	struct GH_vertex_ll * r = createRect(2,2.5,2,3);
+	struct PC_vertex_ll * r = createRect(2,2.5,2,3);
 	
-	bool result = GH_phase_one(r, pokey); 
+	bool result = PC_phase_one(r, pokey); 
 	
 	
 	LT_REQUIRE(polySize(r) == 7); 
 	LT_REQUIRE(polySize(pokey) == 8);
 	
-	enum GH_op_t op = GH_op_union;
-	GH_phase_two(r, pokey, op);
+	enum PC_op_t op = PC_op_union;
+	PC_phase_two(r, pokey, op);
 	
-	GHKK_phase_3_prep(r, pokey);
-	struct GH_vertex_ll * o;
+	PC_phase_3_prep(r, pokey);
+	struct PC_vertex_ll * o;
 	
-	bool ok = GHKK_phase_3_fp(r, pokey, GH_op_union, &o);
+	bool ok = PC_phase_3_fp(r, pokey, PC_op_union, &o);
 	LT_ASSERT(ok);
 	
 	LT_REQUIRE(polySize(o) == 9);
@@ -832,37 +931,42 @@ static void shape_test_1_7(void)
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 6), 3, 4));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 7), 3, 2));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 8), 3, 1));
+    
+    PC_free_verticies(o);
 	
-	ok = GHKK_phase_3_fp(r, pokey, GH_op_union, &o);
+	ok = PC_phase_3_fp(r, pokey, PC_op_union, &o);
 	LT_ASSERT(!ok);
+    
+    PC_free_verticies(pokey);
+    PC_free_verticies(r);
 }
 
 static void shape_test_1_8(void)
 {
 	
-	struct GH_vertex_ll * pokey = NULL, * p;
-	pokey = GH_polyPoint(NULL, 0, 0);
-	p = GH_polyPoint(pokey,0, 3);
-	p = GH_polyPoint(p,    2, 3);
-	p = GH_polyPoint(p,    3, 2);
-	p = GH_polyPoint(p,    2, 2);
-	p = GH_polyPoint(p,    2, 0);
+	struct PC_vertex_ll * pokey = NULL, * p;
+	pokey = PC_polyPoint(NULL, 0, 0);
+	p = PC_polyPoint(pokey,0, 3);
+	p = PC_polyPoint(p,    2, 3);
+	p = PC_polyPoint(p,    3, 2);
+	p = PC_polyPoint(p,    2, 2);
+	p = PC_polyPoint(p,    2, 0);
 	
-	struct GH_vertex_ll * r = createRectCW(2,2.5,2,3);
+	struct PC_vertex_ll * r = createRectCW(2,2.5,2,3);
 	
-	bool result = GH_phase_one(r, pokey); 
+	bool result = PC_phase_one(r, pokey); 
 	
 	
 	LT_REQUIRE(polySize(r) == 7); 
 	LT_REQUIRE(polySize(pokey) == 8);
 	
-	enum GH_op_t op = GH_op_union;
-	GH_phase_two(r, pokey, op);
+	enum PC_op_t op = PC_op_union;
+	PC_phase_two(r, pokey, op);
 	
-	GHKK_phase_3_prep(r, pokey);
-	struct GH_vertex_ll * o;
+	PC_phase_3_prep(r, pokey);
+	struct PC_vertex_ll * o;
 	
-	bool ok = GHKK_phase_3_fp(r, pokey, GH_op_union, &o);
+	bool ok = PC_phase_3_fp(r, pokey, PC_op_union, &o);
 	LT_ASSERT(ok);
 	
 	LT_REQUIRE(polySize(o) == 9);
@@ -875,9 +979,14 @@ static void shape_test_1_8(void)
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 6), 3, 2));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 7), 3, 4));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(o, 8), 1, 4));
+    
+    PC_free_verticies(o);
 	
-	ok = GHKK_phase_3_fp(r, pokey, GH_op_union, &o);
+	ok = PC_phase_3_fp(r, pokey, PC_op_union, &o);
 	LT_ASSERT(!ok);
+    
+    PC_free_verticies(pokey);
+    PC_free_verticies(r);
 }
 
 void phase_3_tests(void)

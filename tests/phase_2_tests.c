@@ -6,7 +6,7 @@
 #include "math.h"
 #include "support.h"
 
-static bool no_couples(struct GH_vertex_ll * a)
+static bool no_couples(struct PC_vertex_ll * a)
 {
 	do {
 		if (a->couple)
@@ -17,15 +17,15 @@ static bool no_couples(struct GH_vertex_ll * a)
 static void p2_test_overlapping_rects_1(void)
 {
 	// Square centered on 2,2
-	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
+	struct PC_vertex_ll * r1 = createRect(2,2,4,4);
 	
 	// Square centered on 4,4
-	struct GH_vertex_ll * r2 = createRect(4,4,4,4);
+	struct PC_vertex_ll * r2 = createRect(4,4,4,4);
 	
 	
-	bool result = GH_phase_one(r1, r2); 
-	enum GH_op_t op = GH_op_union;
-	GH_phase_two(r1, r2, op);
+	bool result = PC_phase_one(r1, r2); 
+	enum PC_op_t op = PC_op_union;
+	PC_phase_two(r1, r2, op);
 	
 	// Should be:
 	/*
@@ -59,21 +59,25 @@ static void p2_test_overlapping_rects_1(void)
 	
 	LT_ASSERT(no_couples(r1));
 	LT_ASSERT(no_couples(r2));
+    
+    
+    PC_free_verticies(r1);
+    PC_free_verticies(r2);
 }
 
 
 static void p2_test_overlapping_rects_2(void)
 {
 	// Square centered on 2,2
-	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
+	struct PC_vertex_ll * r1 = createRect(2,2,4,4);
 	
 	// Square centered on 4,4
-	struct GH_vertex_ll * r2 = createRectCW(4,4,4,4);
+	struct PC_vertex_ll * r2 = createRectCW(4,4,4,4);
 	
-	enum GH_op_t op = GH_op_union;
+	enum PC_op_t op = PC_op_union;
 	
-	bool result = GH_phase_one(r1, r2); 
-	GH_phase_two(r1, r2, op);
+	bool result = PC_phase_one(r1, r2); 
+	PC_phase_two(r1, r2, op);
 	
 	// Should be:
 	/*
@@ -110,21 +114,25 @@ static void p2_test_overlapping_rects_2(void)
 	
 	LT_ASSERT(no_couples(r1));
 	LT_ASSERT(no_couples(r2));
+    
+    
+    PC_free_verticies(r1);
+    PC_free_verticies(r2);
 }
 
 static void p2_test_adjacent_rects_1(void)
 {
 	// Square centered on 2,2
-	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
+	struct PC_vertex_ll * r1 = createRect(2,2,4,4);
 	
 	// Square centered on 2,4
-	struct GH_vertex_ll * r2 = createRect(2,6,4,4);
+	struct PC_vertex_ll * r2 = createRect(2,6,4,4);
 	
 	
-	enum GH_op_t op = GH_op_union;
-	bool result = GH_phase_one(r1, r2); 
+	enum PC_op_t op = PC_op_union;
+	bool result = PC_phase_one(r1, r2); 
 	
-	GH_phase_two(r1, r2, op);
+	PC_phase_two(r1, r2, op);
 	
 	LT_ASSERT(_I(r1, 0)->flag == FLG_NONE);
 	LT_ASSERT(_I(r1, 1)->flag == FLG_NONE);
@@ -139,19 +147,23 @@ static void p2_test_adjacent_rects_1(void)
 	
 	LT_ASSERT(no_couples(r1));
 	LT_ASSERT(no_couples(r2));
+    
+    
+    PC_free_verticies(r1);
+    PC_free_verticies(r2);
 }
 
 static void p2_test_adjacent_rects_2(void)
 {
 	// Square centered on 2,2
-	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
+	struct PC_vertex_ll * r1 = createRect(2,2,4,4);
 	
 	// Square centered on 2,4
-	struct GH_vertex_ll * r2 = createRectCW(2,6,4,4);
+	struct PC_vertex_ll * r2 = createRectCW(2,6,4,4);
 	
-	enum GH_op_t op = GH_op_union;
-	bool result = GH_phase_one(r1, r2); 
-	GH_phase_two(r1, r2, op);
+	enum PC_op_t op = PC_op_union;
+	bool result = PC_phase_one(r1, r2); 
+	PC_phase_two(r1, r2, op);
 	
 	LT_ASSERT(_I(r1, 0)->flag == FLG_NONE);
 	LT_ASSERT(_I(r1, 1)->flag == FLG_NONE);
@@ -166,19 +178,23 @@ static void p2_test_adjacent_rects_2(void)
 	
 	LT_ASSERT(no_couples(r1));
 	LT_ASSERT(no_couples(r2));
+    
+    
+    PC_free_verticies(r1);
+    PC_free_verticies(r2);
 }
 
 static void p2_test_touching_rects_1(void)
 {
 	// Square centered on 2,2
-	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
+	struct PC_vertex_ll * r1 = createRect(2,2,4,4);
 	
 	// Square centered on 6,6
-	struct GH_vertex_ll * r2 = createRect(6,6,4,4);
+	struct PC_vertex_ll * r2 = createRect(6,6,4,4);
 	
-	enum GH_op_t op = GH_op_union;
-	bool result = GH_phase_one(r1, r2); 
-	GH_phase_two(r1, r2, op);
+	enum PC_op_t op = PC_op_union;
+	bool result = PC_phase_one(r1, r2); 
+	PC_phase_two(r1, r2, op);
 	
 	LT_ASSERT(_I(r1, 0)->flag == FLG_NONE);
 	LT_ASSERT(_I(r1, 1)->flag == FLG_NONE);
@@ -192,6 +208,10 @@ static void p2_test_touching_rects_1(void)
 	
 	LT_ASSERT(no_couples(r1));
 	LT_ASSERT(no_couples(r2));
+    
+    
+    PC_free_verticies(r1);
+    PC_free_verticies(r2);
 
 }
 
@@ -199,14 +219,14 @@ static void p2_test_touching_rects_2(void)
 {
 	
 	// Square centered on 2,2
-	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
+	struct PC_vertex_ll * r1 = createRect(2,2,4,4);
 	
 	// Square centered on 2,4
-	struct GH_vertex_ll * r2 = createRectCW(6,6,4,4);
+	struct PC_vertex_ll * r2 = createRectCW(6,6,4,4);
 	
-	enum GH_op_t op = GH_op_union;
-	bool result = GH_phase_one(r1, r2); 
-	GH_phase_two(r1, r2, op);
+	enum PC_op_t op = PC_op_union;
+	bool result = PC_phase_one(r1, r2); 
+	PC_phase_two(r1, r2, op);
 	
 	LT_ASSERT(_I(r1, 0)->flag == FLG_NONE);
 	LT_ASSERT(_I(r1, 1)->flag == FLG_NONE);
@@ -220,21 +240,25 @@ static void p2_test_touching_rects_2(void)
 	
 	LT_ASSERT(no_couples(r1));
 	LT_ASSERT(no_couples(r2));
+    
+    
+    PC_free_verticies(r1);
+    PC_free_verticies(r2);
 
 }
 
 static void p2_test_overlapborder_rects_1(void)
 {
 	// Square centered on 2,2
-	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
+	struct PC_vertex_ll * r1 = createRect(2,2,4,4);
 	
 	// Square centered on 3,4
-	struct GH_vertex_ll * r2 = createRect(3,6,4,4);
+	struct PC_vertex_ll * r2 = createRect(3,6,4,4);
 	
 	
-	enum GH_op_t op = GH_op_union;
-	bool result = GH_phase_one(r1, r2); 
-	GH_phase_two(r1, r2, op);
+	enum PC_op_t op = PC_op_union;
+	bool result = PC_phase_one(r1, r2); 
+	PC_phase_two(r1, r2, op);
 	
 	LT_ASSERT(_I(r1, 0)->flag == FLG_NONE);
 	LT_ASSERT(_I(r1, 1)->flag == FLG_NONE);
@@ -250,20 +274,24 @@ static void p2_test_overlapborder_rects_1(void)
 	
 	LT_ASSERT(no_couples(r1));
 	LT_ASSERT(no_couples(r2));
+    
+    
+    PC_free_verticies(r1);
+    PC_free_verticies(r2);
 	
 }
 
 static void p2_test_overlapborder_rects_2(void)
 {
 	// Square centered on 2,2
-	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
+	struct PC_vertex_ll * r1 = createRect(2,2,4,4);
 	
 	// Square centered on 3,4
-	struct GH_vertex_ll * r2 = createRectCW(3,6,4,4);
+	struct PC_vertex_ll * r2 = createRectCW(3,6,4,4);
 	
-	enum GH_op_t op = GH_op_union;
-	bool result = GH_phase_one(r1, r2); 
-	GH_phase_two(r1, r2, op);
+	enum PC_op_t op = PC_op_union;
+	bool result = PC_phase_one(r1, r2); 
+	PC_phase_two(r1, r2, op);
 	
 	LT_ASSERT(_I(r1, 0)->flag == FLG_NONE);
 	LT_ASSERT(_I(r1, 1)->flag == FLG_NONE);
@@ -279,25 +307,29 @@ static void p2_test_overlapborder_rects_2(void)
 	
 	LT_ASSERT(no_couples(r1));
 	LT_ASSERT(no_couples(r2));
+    
+    
+    PC_free_verticies(r1);
+    PC_free_verticies(r2);
 }
 
 
 static void p2_test_onelarger(void)
 {
 	// Square centered on 2,2
-	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
+	struct PC_vertex_ll * r1 = createRect(2,2,4,4);
 	
 	// Square centered on 3,4
-	struct GH_vertex_ll * r2 = createRectCW(3,3,6,6);
+	struct PC_vertex_ll * r2 = createRectCW(3,3,6,6);
 	
-	enum GH_op_t op = GH_op_union;
-	bool result = GH_phase_one(r1, r2); 
+	enum PC_op_t op = PC_op_union;
+	bool result = PC_phase_one(r1, r2); 
 	
 	
 	LT_REQUIRE(polySize(r1) == 4); 
 	LT_REQUIRE(polySize(r2) == 6);
 	
-	GH_phase_two(r1, r2, op);
+	PC_phase_two(r1, r2, op);
 	
 	LT_ASSERT(_I(r1, 0)->flag == FLG_NONE);
 	LT_ASSERT(_I(r1, 1)->flag == FLG_EN);
@@ -313,24 +345,28 @@ static void p2_test_onelarger(void)
 	
 	LT_ASSERT(no_couples(r1));
 	LT_ASSERT(no_couples(r2));
+    
+    
+    PC_free_verticies(r1);
+    PC_free_verticies(r2);
 }
 
 static void p2_test_onelarger2(void)
 {
 	// Square centered on 2,2
-	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
+	struct PC_vertex_ll * r1 = createRect(2,2,4,4);
 	
 	// Square centered on 3,4
-	struct GH_vertex_ll * r2 = createRect(3,3,6,6);
+	struct PC_vertex_ll * r2 = createRect(3,3,6,6);
 	
-	enum GH_op_t op = GH_op_union;
-	bool result = GH_phase_one(r1, r2); 
+	enum PC_op_t op = PC_op_union;
+	bool result = PC_phase_one(r1, r2); 
 	
 	
 	LT_REQUIRE(polySize(r1) == 4); 
 	LT_REQUIRE(polySize(r2) == 6);
 	
-	GH_phase_two(r1, r2, op);
+	PC_phase_two(r1, r2, op);
 	
 	LT_ASSERT(_I(r1, 0)->flag == FLG_NONE);
 	LT_ASSERT(_I(r1, 1)->flag == FLG_EN);
@@ -346,23 +382,27 @@ static void p2_test_onelarger2(void)
 	
 	LT_ASSERT(no_couples(r1));
 	LT_ASSERT(no_couples(r2));
+    
+    
+    PC_free_verticies(r1);
+    PC_free_verticies(r2);
 }
 
 static void p2_test_semi1(void)
 {
 	// Square centered on 2,2
-	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
+	struct PC_vertex_ll * r1 = createRect(2,2,4,4);
 	
 	// Square centered on 3,4
-	struct GH_vertex_ll * r2 = createRect(4,3,2,2);
+	struct PC_vertex_ll * r2 = createRect(4,3,2,2);
 	
-	enum GH_op_t op = GH_op_union;
-	bool result = GH_phase_one(r1, r2); 
+	enum PC_op_t op = PC_op_union;
+	bool result = PC_phase_one(r1, r2); 
 	
 	LT_REQUIRE(polySize(r1) == 6); 
 	LT_REQUIRE(polySize(r2) == 6);
 	
-	GH_phase_two(r1, r2, op);
+	PC_phase_two(r1, r2, op);
 	
 	LT_ASSERT(_I(r1, 0)->flag == FLG_NONE);
 	LT_ASSERT(_I(r1, 1)->flag == FLG_NONE);
@@ -393,22 +433,26 @@ static void p2_test_semi1(void)
 	LT_ASSERT(_I(r2, 3)->couple == NULL);
 	LT_ASSERT(_I(r2, 4)->couple == _I(r2, 5));
 	LT_ASSERT(_I(r2, 5)->couple == _I(r2, 4));
+    
+    
+    PC_free_verticies(r1);
+    PC_free_verticies(r2);
 }
 
 static void p2_test_semi2(void)
 {
-	struct GH_vertex_ll * r1 = createRect(2,2,4,4);
-	struct GH_vertex_ll * r2 = createRectCW(4,3,2,2);
+	struct PC_vertex_ll * r1 = createRect(2,2,4,4);
+	struct PC_vertex_ll * r2 = createRectCW(4,3,2,2);
 	
-	enum GH_op_t op = GH_op_union;
-	bool result = GH_phase_one(r1, r2); 
+	enum PC_op_t op = PC_op_union;
+	bool result = PC_phase_one(r1, r2); 
 	
 	
 	
 	LT_REQUIRE(polySize(r1) == 6); 
 	LT_REQUIRE(polySize(r2) == 6);
 	
-	GH_phase_two(r1, r2, op);
+	PC_phase_two(r1, r2, op);
 	
 
 	LT_ASSERT(_I(r1, 0)->flag == FLG_NONE);
@@ -440,6 +484,10 @@ static void p2_test_semi2(void)
 	LT_ASSERT(_I(r2, 3)->couple == NULL);
 	LT_ASSERT(_I(r2, 4)->couple == NULL);
 	LT_ASSERT(_I(r2, 5)->couple == NULL);
+    
+    
+    PC_free_verticies(r1);
+    PC_free_verticies(r2);
 }
 
 void phase_2_tests(void)

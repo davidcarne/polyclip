@@ -24,27 +24,27 @@
 #ifndef _POLYMATH_H_
 #define _POLYMATH_H_
 
-enum GH_op_t {
-	GH_op_subtract, // return where only a present and not b [same walker as intersect, invert b inpoly checks]
-	GH_op_intersect, // return where only both present
+enum PC_op_t {
+	PC_op_subtract, // return where only a present and not b [same walker as intersect, invert b inpoly checks]
+	PC_op_intersect, // return where only both present
 	
-	GH_op_union, // Return where either present
-	GH_op_xor,	// Return where only 1 or other, not both
+	PC_op_union, // Return where either present
+	PC_op_xor,	// Return where only 1 or other, not both
 	};
 
-struct GH_polygon_ll {
-	struct GH_polygon_ll * next;
+struct PC_polygon_ll {
+	struct PC_polygon_ll * next;
     
-	struct GH_vertex_ll * firstv;
+	struct PC_vertex_ll * firstv;
 };
 
-struct GH_vertex_ll;
+struct PC_vertex_ll;
 
 // Pass NULL to start a new polygon
-struct GH_vertex_ll * GH_polyPoint(struct GH_vertex_ll * v, double x, double y);
-struct GH_vertex_ll * GH_getPolyPoint(struct GH_vertex_ll *v, double * x, double * y);
+struct PC_vertex_ll * PC_polyPoint(struct PC_vertex_ll * v, double x, double y);
+struct PC_vertex_ll * PC_getPolyPoint(struct PC_vertex_ll *v, double * x, double * y);
 
-struct GH_polygon_ll * GH_polygon_boolean(struct GH_vertex_ll * p1, struct GH_vertex_ll * p2, enum GH_op_t op);
-void GH_free_polygons(struct GH_vertex_ll * polys);
-
+struct PC_polygon_ll * PC_polygon_boolean(struct PC_vertex_ll * p1, struct PC_vertex_ll * p2, enum PC_op_t op);
+void PC_free_verticies(struct PC_vertex_ll * verticies);
+void PC_free_polys(struct PC_polygon_ll * polys);
 #endif

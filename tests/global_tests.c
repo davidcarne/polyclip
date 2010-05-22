@@ -6,23 +6,23 @@
 #include "math.h"
 #include "support.h"
 
-static int nPolys(struct GH_polygon_ll * p)
+static int nPolys(struct PC_polygon_ll * p)
 {
 	int c = 1;
 	while (p = p->next) c++;
 	return c;
 }
 
-struct GH_vertex_ll * reversePoly(struct GH_vertex_ll * v)
+struct PC_vertex_ll * reversePoly(struct PC_vertex_ll * v)
 {
-	struct GH_vertex_ll * next = v;
-	struct GH_vertex_ll * cur;
+	struct PC_vertex_ll * next = v;
+	struct PC_vertex_ll * cur;
 	while (next)
 	{
 		cur = next;
 		next = next->next;
 		
-		struct GH_vertex_ll * temp;
+		struct PC_vertex_ll * temp;
 		temp = cur->next;
 		cur->next = cur->prev;
 		cur->prev = temp;
@@ -30,7 +30,7 @@ struct GH_vertex_ll * reversePoly(struct GH_vertex_ll * v)
 	return cur;
 }
 
-static void testpattern_1(struct GH_vertex_ll ** f1, struct GH_vertex_ll ** f2)
+static void testpattern_1(struct PC_vertex_ll ** f1, struct PC_vertex_ll ** f2)
 {
 	/* 8  --   --
 	 * 7  - - - -
@@ -47,34 +47,34 @@ static void testpattern_1(struct GH_vertex_ll ** f1, struct GH_vertex_ll ** f2)
 	 * *'s = f2
 	 */
 	
-	struct GH_vertex_ll * p;
-	*f1 = GH_polyPoint(NULL, 0, 0);
-	p = GH_polyPoint(*f1,    0, 8);
-	p = GH_polyPoint(p,     3, 6);
-	p = GH_polyPoint(p,     6, 8);
-	p = GH_polyPoint(p,     6, 5);
-	p = GH_polyPoint(p,     7, 4);
-	p = GH_polyPoint(p,     6, 3);
-	p = GH_polyPoint(p,     6, 0);
+	struct PC_vertex_ll * p;
+	*f1 = PC_polyPoint(NULL, 0, 0);
+	p = PC_polyPoint(*f1,    0, 8);
+	p = PC_polyPoint(p,     3, 6);
+	p = PC_polyPoint(p,     6, 8);
+	p = PC_polyPoint(p,     6, 5);
+	p = PC_polyPoint(p,     7, 4);
+	p = PC_polyPoint(p,     6, 3);
+	p = PC_polyPoint(p,     6, 0);
 	
-	*f2 = GH_polyPoint(NULL, 0, 4);
-	p = GH_polyPoint(*f2,    2, 6);
-	p = GH_polyPoint(p,     7, 6);
-	p = GH_polyPoint(p,     7, 2);
-	p = GH_polyPoint(p,     2, 2);
+	*f2 = PC_polyPoint(NULL, 0, 4);
+	p = PC_polyPoint(*f2,    2, 6);
+	p = PC_polyPoint(p,     7, 6);
+	p = PC_polyPoint(p,     7, 2);
+	p = PC_polyPoint(p,     2, 2);
 }
 
 static void test_simple_union_1()
 {
-	struct GH_vertex_ll * f1, * f2;
+	struct PC_vertex_ll * f1, * f2;
 	testpattern_1(&f1, &f2);
 	
-	struct GH_polygon_ll * res = GH_polygon_boolean(f1, f2, GH_op_union);
+	struct PC_polygon_ll * res = PC_polygon_boolean(f1, f2, PC_op_union);
 	LT_REQUIRE(res);
 	
 	LT_REQUIRE(nPolys(res) == 1);
 	
-	struct GH_vertex_ll * rpoly = res->firstv;
+	struct PC_vertex_ll * rpoly = res->firstv;
 	LT_REQUIRE(polySize(rpoly) == 11);
 	
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  0), 0, 4));
@@ -88,18 +88,23 @@ static void test_simple_union_1()
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  8), 6, 2));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  9), 6, 0));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly, 10), 0, 0));
+    
+    
+    PC_free_verticies(f1);
+    PC_free_verticies(f2);
+    PC_free_polys(res);
 }
 
 static void test_simple_intersect_1()
 {
-	struct GH_vertex_ll * f1, * f2;
+	struct PC_vertex_ll * f1, * f2;
 	testpattern_1(&f1, &f2);
 	
-	struct GH_polygon_ll * res = GH_polygon_boolean(f1, f2, GH_op_intersect);
+	struct PC_polygon_ll * res = PC_polygon_boolean(f1, f2, PC_op_intersect);
 	LT_REQUIRE(res);
 	LT_REQUIRE(nPolys(res) == 1);
 	
-	struct GH_vertex_ll * rpoly = res->firstv;
+	struct PC_vertex_ll * rpoly = res->firstv;
 	LT_REQUIRE(polySize(rpoly) == 9);
 	
 	
@@ -112,22 +117,27 @@ static void test_simple_intersect_1()
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  6), 3, 6));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  7), 2, 6));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  8), 0, 4));
+
+    
+    PC_free_verticies(f1);
+    PC_free_verticies(f2);
+    PC_free_polys(res);
 }
 
 
 static void test_simple_intersect_2()
 {
-	struct GH_vertex_ll * f1, * f2;
+	struct PC_vertex_ll * f1, * f2;
 	testpattern_1(&f1, &f2);
 	f2 = reversePoly(f2);
 	
 	//polyDump(f2);
 	
-	struct GH_polygon_ll * res = GH_polygon_boolean(f1, f2, GH_op_intersect);
+	struct PC_polygon_ll * res = PC_polygon_boolean(f1, f2, PC_op_intersect);
 	LT_REQUIRE(res);
 	LT_REQUIRE(nPolys(res) == 1);
 	
-	struct GH_vertex_ll * rpoly = res->firstv;
+	struct PC_vertex_ll * rpoly = res->firstv;
 	LT_REQUIRE(polySize(rpoly) == 9);
 	
 	
@@ -142,63 +152,70 @@ static void test_simple_intersect_2()
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  6), 6, 2));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  7), 2, 2));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  8), 0, 4));
+    
+    PC_free_verticies(f1);
+    PC_free_verticies(f2);
+    PC_free_polys(res);
 }
 
 static void test_winding_bug_1()
 {
 	
-	struct GH_vertex_ll * f1, * f2;
+	struct PC_vertex_ll * f1, * f2;
 	testpattern_1(&f1, &f2);
 	f2 = reversePoly(f2);
 	
 	
-	bool result = GH_phase_one(f1, f2); 
+	bool result = PC_phase_one(f1, f2); 
 
-	enum GH_op_t op = GH_op_intersect;
-	GH_phase_two(f1, f2, op);
+	enum PC_op_t op = PC_op_intersect;
+	PC_phase_two(f1, f2, op);
 	
     //polyDump(f1);
 	//polyDump(f2);
+    
+    PC_free_verticies(f1);
+    PC_free_verticies(f2);
 }
 
 /*
  *  Hard testcase such as the one found in the Kim-Kim paper.
  */
-static void setup_KK_example(struct GH_vertex_ll ** c, struct GH_vertex_ll ** s)
+static void setup_KK_example(struct PC_vertex_ll ** c, struct PC_vertex_ll ** s)
 {
-    struct GH_vertex_ll * p;
-	*c = GH_polyPoint(NULL, 0, 0);
-	p = GH_polyPoint(*c,    6, 0);
-	p = GH_polyPoint(p,      6, 7);
-	p = GH_polyPoint(p,      0, 4);
+    struct PC_vertex_ll * p;
+	*c = PC_polyPoint(NULL, 0, 0);
+	p = PC_polyPoint(*c,    6, 0);
+	p = PC_polyPoint(p,      6, 7);
+	p = PC_polyPoint(p,      0, 4);
 	
-	*s = GH_polyPoint(NULL,   2, 0);
-	p = GH_polyPoint(*s,      2, 1);
-	p = GH_polyPoint(p,      0, 2);
-	p = GH_polyPoint(p,      2, 3);
-	p = GH_polyPoint(p,      2, 5);
-    p = GH_polyPoint(p,      4, 6);
-	p = GH_polyPoint(p,      2, 7);
-	p = GH_polyPoint(p,      6, 7);
-	p = GH_polyPoint(p,      9, 2);
-	p = GH_polyPoint(p,      5, 2);
-	p = GH_polyPoint(p,      5, -2);
-	p = GH_polyPoint(p,      4, 0);
+	*s = PC_polyPoint(NULL,   2, 0);
+	p = PC_polyPoint(*s,      2, 1);
+	p = PC_polyPoint(p,      0, 2);
+	p = PC_polyPoint(p,      2, 3);
+	p = PC_polyPoint(p,      2, 5);
+    p = PC_polyPoint(p,      4, 6);
+	p = PC_polyPoint(p,      2, 7);
+	p = PC_polyPoint(p,      6, 7);
+	p = PC_polyPoint(p,      9, 2);
+	p = PC_polyPoint(p,      5, 2);
+	p = PC_polyPoint(p,      5, -2);
+	p = PC_polyPoint(p,      4, 0);
 }
 
 static void test_KK_example()
 {
-    struct GH_vertex_ll * c; // clip polygon
-    struct GH_vertex_ll * s; // subject polygon
+    struct PC_vertex_ll * c; // clip polygon
+    struct PC_vertex_ll * s; // subject polygon
     
 
     setup_KK_example(&c, &s);
     
-	struct GH_polygon_ll * res = GH_polygon_boolean(s, c, GH_op_intersect);
+	struct PC_polygon_ll * res = PC_polygon_boolean(s, c, PC_op_intersect);
 	LT_REQUIRE(res);
 	LT_REQUIRE(nPolys(res) == 1);
 	
-	struct GH_vertex_ll * rpoly = res->firstv;
+	struct PC_vertex_ll * rpoly = res->firstv;
 	LT_REQUIRE(polySize(rpoly) == 11);
 	
     
@@ -213,22 +230,26 @@ static void test_KK_example()
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  8), 2, 3));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  9), 0, 2));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly, 10), 2, 1));
+    
+    PC_free_verticies(c);
+    PC_free_verticies(s);
+    PC_free_polys(res);
 }
 
 static void test_KK_example_R2()
 {
     
-    struct GH_vertex_ll * c; // clip polygon
-    struct GH_vertex_ll * s; // subject polygon
+    struct PC_vertex_ll * c; // clip polygon
+    struct PC_vertex_ll * s; // subject polygon
     
     setup_KK_example(&c, &s);
     s = reversePoly(s);
     
-	struct GH_polygon_ll * res = GH_polygon_boolean(s, c, GH_op_intersect);
+	struct PC_polygon_ll * res = PC_polygon_boolean(s, c, PC_op_intersect);
 	LT_REQUIRE(res);
 	LT_REQUIRE(nPolys(res) == 1);
 	
-	struct GH_vertex_ll * rpoly = res->firstv;
+	struct PC_vertex_ll * rpoly = res->firstv;
 	LT_REQUIRE(polySize(rpoly) == 11);
 	    
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  0), 5, 0));
@@ -242,22 +263,26 @@ static void test_KK_example_R2()
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  8), 6, 7));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  9), 6, 2));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  10), 5, 2));
+    
+    PC_free_verticies(c);
+    PC_free_verticies(s);
+    PC_free_polys(res);
 }
 
 static void test_KK_example_R3()
 {
     
-    struct GH_vertex_ll * c; // clip polygon
-    struct GH_vertex_ll * s; // subject polygon
+    struct PC_vertex_ll * c; // clip polygon
+    struct PC_vertex_ll * s; // subject polygon
     
     setup_KK_example(&c, &s);
     c = reversePoly(c);
     
-	struct GH_polygon_ll * res = GH_polygon_boolean(s, c, GH_op_intersect);
+	struct PC_polygon_ll * res = PC_polygon_boolean(s, c, PC_op_intersect);
 	LT_REQUIRE(res);
 	LT_REQUIRE(nPolys(res) == 1);
 	
-	struct GH_vertex_ll * rpoly = res->firstv;
+	struct PC_vertex_ll * rpoly = res->firstv;
 	LT_REQUIRE(polySize(rpoly) == 11);
     
     
@@ -272,24 +297,28 @@ static void test_KK_example_R3()
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  8), 2, 3));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  9), 0, 2));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly, 10), 2, 1));
+    
+    PC_free_verticies(c);
+    PC_free_verticies(s);
+    PC_free_polys(res);
 }
 
 static void test_KK_example_R4()
 {
     
     
-    struct GH_vertex_ll * c; // clip polygon
-    struct GH_vertex_ll * s; // subject polygon
+    struct PC_vertex_ll * c; // clip polygon
+    struct PC_vertex_ll * s; // subject polygon
     
     setup_KK_example(&c, &s);
     s = reversePoly(s);
     c = reversePoly(c);
     
-	struct GH_polygon_ll * res = GH_polygon_boolean(s, c, GH_op_intersect);
+	struct PC_polygon_ll * res = PC_polygon_boolean(s, c, PC_op_intersect);
 	LT_REQUIRE(res);
 	LT_REQUIRE(nPolys(res) == 1);
 	
-	struct GH_vertex_ll * rpoly = res->firstv;
+	struct PC_vertex_ll * rpoly = res->firstv;
 	LT_REQUIRE(polySize(rpoly) == 11);
     
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  0), 5, 0));
@@ -303,6 +332,10 @@ static void test_KK_example_R4()
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  8), 6, 7));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  9), 6, 2));
 	LT_ASSERT(VERTEX_COMPARE_TO(_I(rpoly,  10), 5, 2));
+    
+    PC_free_verticies(c);
+    PC_free_verticies(s);
+    PC_free_polys(res);
 }
 
 void global_tests()

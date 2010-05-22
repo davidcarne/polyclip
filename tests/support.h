@@ -9,11 +9,11 @@
 #define _I polyIndex
 
 
-void polyDump(struct GH_vertex_ll * p);
-struct GH_vertex_ll * polyIndex(struct GH_vertex_ll * p, int c);
-int polySize(struct GH_vertex_ll * p);
-struct GH_vertex_ll * createRectCW(double cx, double cy, double w, double h);
-struct GH_vertex_ll * createRect(double cx, double cy, double w, double h);
+void polyDump(struct PC_vertex_ll * p);
+struct PC_vertex_ll * polyIndex(struct PC_vertex_ll * p, int c);
+int polySize(struct PC_vertex_ll * p);
+struct PC_vertex_ll * createRectCW(double cx, double cy, double w, double h);
+struct PC_vertex_ll * createRect(double cx, double cy, double w, double h);
 const char * td_dec(enum trv_dir e);
 const char * flag_dec(enum trv_dir e);
 
